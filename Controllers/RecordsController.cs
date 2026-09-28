@@ -108,6 +108,22 @@ public class RecordsController(AppDbContext db) : ControllerBase
         return Ok(criteria.Select(c => new GradeCriteriaDto(c.Grade, c.MinValue, c.MaxValue)).ToList());
     }
 
+    // 기록에 첨부된 사진 원본을 내려준다. 본인 기록이거나 관리자만 조회 가능.
+    [HttpGet("{id}/photo")]
+    public async Task<IActionResult> GetPhoto(long id)
+    {
+        var record = await db.Records.FindAsync(id);
+        if (record is null || record.Photo is null) return NotFound();
+
+        if (!User.IsInRole("ADMIN"))
+        {
+            var requesterId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            if (record.UserId != requesterId) return Forbid();
+        }
+
+        return File(record.Photo, "image/jpeg");
+    }
+
     // 추이 조회 (그래프용) - userId 미지정 시 요청한 본인 기준
     [HttpGet("trend")]
     public async Task<ActionResult<List<TrendPoint>>> Trend(
