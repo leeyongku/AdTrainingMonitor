@@ -58,11 +58,22 @@ class RecordInputFragment : Fragment() {
     private var pendingPhotoFile: File? = null
     private var pendingPhotoUri: Uri? = null
 
+    // launchCamera()가 만들어둔 "촬영 시도 중" 파일/uri. 카메라가 성공(success=true)을 돌려줘야
+    // pendingPhotoFile/Uri로 승격된다. 취소/실패 시에는 이전에 촬영해둔 사진을 그대로 유지한다.
+    private var candidatePhotoFile: File? = null
+    private var candidatePhotoUri: Uri? = null
+
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
+            pendingPhotoFile = candidatePhotoFile
+            pendingPhotoUri = candidatePhotoUri
             binding.ivPhotoThumbnail.visibility = View.VISIBLE
             binding.ivPhotoThumbnail.setImageURI(pendingPhotoUri)
+        } else {
+            candidatePhotoFile?.delete()
         }
+        candidatePhotoFile = null
+        candidatePhotoUri = null
     }
 
     //뷰를 생성하고 반환
@@ -210,8 +221,8 @@ class RecordInputFragment : Fragment() {
         val imagesDir = File(requireContext().cacheDir, "images").apply { mkdirs() }
         val file = File.createTempFile("record_", ".jpg", imagesDir)
         val uri = FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", file)
-        pendingPhotoFile = file
-        pendingPhotoUri = uri
+        candidatePhotoFile = file
+        candidatePhotoUri = uri
         cameraLauncher.launch(uri)
     }
 
