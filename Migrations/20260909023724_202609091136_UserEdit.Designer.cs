@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TrainingMonitor.Data;
@@ -11,13 +12,15 @@ using TrainingMonitor.Data;
 namespace TrainingMonitor.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260909023724_202609091136_UserEdit")]
+    partial class _202609091136_UserEdit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.20")
+                .HasAnnotation("ProductVersion", "9.0.19")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -251,10 +254,6 @@ namespace TrainingMonitor.Migrations
                         .HasColumnType("text")
                         .HasColumnName("note");
 
-                    b.Property<byte[]>("Photo")
-                        .HasColumnType("bytea")
-                        .HasColumnName("photo");
-
                     b.Property<long?>("SessionId")
                         .HasColumnType("bigint")
                         .HasColumnName("session_id");
@@ -413,10 +412,6 @@ namespace TrainingMonitor.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasColumnName("military_id");
-
-                    b.Property<bool>("MustChangePassword")
-                        .HasColumnType("boolean")
-                        .HasColumnName("must_change_password");
 
                     b.Property<string>("Name")
                         .IsRequired()

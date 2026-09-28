@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TrainingMonitor.Data;
@@ -11,13 +12,15 @@ using TrainingMonitor.Data;
 namespace TrainingMonitor.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260722081154_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.20")
+                .HasAnnotation("ProductVersion", "9.0.18")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -26,35 +29,29 @@ namespace TrainingMonitor.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
+                        .HasColumnType("bigint");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Description")
-                        .HasColumnType("text")
-                        .HasColumnName("description");
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Unit")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("unit");
+                        .HasColumnType("character varying(20)");
 
-                    b.HasKey("Id")
-                        .HasName("pk_categories");
+                    b.HasKey("Id");
 
-                    b.ToTable("categories", (string)null);
+                    b.ToTable("categories");
 
                     b.HasData(
                         new
@@ -87,50 +84,40 @@ namespace TrainingMonitor.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
+                        .HasColumnType("bigint");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<long>("CategoryId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("category_id");
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Gender")
                         .HasMaxLength(1)
-                        .HasColumnType("character varying(1)")
-                        .HasColumnName("gender");
+                        .HasColumnType("character varying(1)");
 
                     b.Property<string>("Grade")
                         .IsRequired()
                         .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
-                        .HasColumnName("grade");
+                        .HasColumnType("character varying(10)");
 
                     b.Property<double?>("MaxValue")
-                        .HasColumnType("double precision")
-                        .HasColumnName("max_value");
+                        .HasColumnType("double precision");
 
                     b.Property<double?>("MinValue")
-                        .HasColumnType("double precision")
-                        .HasColumnName("min_value");
+                        .HasColumnType("double precision");
 
                     b.Property<string>("RankGroup")
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("rank_group");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<int>("SortOrder")
-                        .HasColumnType("integer")
-                        .HasColumnName("sort_order");
+                        .HasColumnType("integer");
 
-                    b.HasKey("Id")
-                        .HasName("pk_grade_criteria");
+                    b.HasKey("Id");
 
-                    b.HasIndex("CategoryId")
-                        .HasDatabaseName("ix_grade_criteria_category_id");
+                    b.HasIndex("CategoryId");
 
-                    b.ToTable("grade_criteria", (string)null);
+                    b.ToTable("grade_criteria");
 
                     b.HasData(
                         new
@@ -183,281 +170,185 @@ namespace TrainingMonitor.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
+                        .HasColumnType("bigint");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<long?>("AdminId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("admin_id");
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Location")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("location");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateOnly>("MeasuredAt")
-                        .HasColumnType("date")
-                        .HasColumnName("measured_at");
+                        .HasColumnType("date");
 
                     b.Property<string>("Note")
-                        .HasColumnType("text")
-                        .HasColumnName("note");
+                        .HasColumnType("text");
 
                     b.Property<long?>("UnitId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("unit_id");
+                        .HasColumnType("bigint");
 
-                    b.HasKey("Id")
-                        .HasName("pk_measurement_sessions");
+                    b.HasKey("Id");
 
-                    b.HasIndex("AdminId")
-                        .HasDatabaseName("ix_measurement_sessions_admin_id");
+                    b.HasIndex("AdminId");
 
-                    b.HasIndex("UnitId")
-                        .HasDatabaseName("ix_measurement_sessions_unit_id");
+                    b.HasIndex("UnitId");
 
-                    b.ToTable("measurement_sessions", (string)null);
+                    b.ToTable("measurement_sessions");
                 });
 
             modelBuilder.Entity("TrainingMonitor.Models.Entities.Record", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
+                        .HasColumnType("bigint");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<long>("CategoryId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("category_id");
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Grade")
                         .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
-                        .HasColumnName("grade");
+                        .HasColumnType("character varying(10)");
 
                     b.Property<string>("Note")
-                        .HasColumnType("text")
-                        .HasColumnName("note");
-
-                    b.Property<byte[]>("Photo")
-                        .HasColumnType("bytea")
-                        .HasColumnName("photo");
+                        .HasColumnType("text");
 
                     b.Property<long?>("SessionId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("session_id");
+                        .HasColumnType("bigint");
 
                     b.Property<long>("UserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("user_id");
+                        .HasColumnType("bigint");
 
                     b.Property<double>("Value")
-                        .HasColumnType("double precision")
-                        .HasColumnName("value");
+                        .HasColumnType("double precision");
 
-                    b.HasKey("Id")
-                        .HasName("pk_records");
+                    b.HasKey("Id");
 
-                    b.HasIndex("CategoryId")
-                        .HasDatabaseName("ix_records_category_id");
+                    b.HasIndex("CategoryId");
 
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_records_user_id");
+                    b.HasIndex("UserId");
 
                     b.HasIndex("SessionId", "UserId", "CategoryId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_records_session_id_user_id_category_id");
+                        .IsUnique();
 
-                    b.ToTable("records", (string)null);
+                    b.ToTable("records");
                 });
 
             modelBuilder.Entity("TrainingMonitor.Models.Entities.RefreshToken", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
+                        .HasColumnType("bigint");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("expires_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasMaxLength(512)
-                        .HasColumnType("character varying(512)")
-                        .HasColumnName("token");
+                        .HasColumnType("character varying(512)");
 
                     b.Property<long>("UserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("user_id");
+                        .HasColumnType("bigint");
 
-                    b.HasKey("Id")
-                        .HasName("pk_refresh_tokens");
+                    b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_refresh_tokens_user_id");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("refresh_tokens", (string)null);
+                    b.ToTable("refresh_tokens");
                 });
 
             modelBuilder.Entity("TrainingMonitor.Models.Entities.Unit", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
+                        .HasColumnType("bigint");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<long?>("ParentId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("parent_id");
+                        .HasColumnType("bigint");
 
-                    b.HasKey("Id")
-                        .HasName("pk_units");
+                    b.HasKey("Id");
 
-                    b.HasIndex("ParentId")
-                        .HasDatabaseName("ix_units_parent_id");
+                    b.HasIndex("ParentId");
 
-                    b.ToTable("units", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Name = "1여단"
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Name = "1대대",
-                            ParentId = 1L
-                        },
-                        new
-                        {
-                            Id = 3L,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Name = "1중대",
-                            ParentId = 2L
-                        },
-                        new
-                        {
-                            Id = 4L,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Name = "1소대",
-                            ParentId = 3L
-                        },
-                        new
-                        {
-                            Id = 5L,
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Name = "1분대",
-                            ParentId = 4L
-                        });
+                    b.ToTable("units");
                 });
 
             modelBuilder.Entity("TrainingMonitor.Models.Entities.User", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
+                        .HasColumnType("bigint");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_login_at");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("MilitaryId")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("military_id");
-
-                    b.Property<bool>("MustChangePassword")
-                        .HasColumnType("boolean")
-                        .HasColumnName("must_change_password");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("password_hash");
+                        .HasColumnType("text");
 
                     b.Property<string>("Rank")
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("rank");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("role");
+                        .HasColumnType("text");
 
                     b.Property<long?>("UnitId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("unit_id");
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                        .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Id")
-                        .HasName("pk_users");
+                    b.HasKey("Id");
 
                     b.HasIndex("MilitaryId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_users_military_id");
+                        .IsUnique();
 
-                    b.HasIndex("UnitId")
-                        .HasDatabaseName("ix_users_unit_id");
+                    b.HasIndex("UnitId");
 
-                    b.ToTable("users", (string)null);
+                    b.ToTable("users");
                 });
 
             modelBuilder.Entity("TrainingMonitor.Models.Entities.GradeCriteria", b =>
@@ -466,8 +357,7 @@ namespace TrainingMonitor.Migrations
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_grade_criteria_categories_category_id");
+                        .IsRequired();
 
                     b.Navigation("Category");
                 });
@@ -476,13 +366,11 @@ namespace TrainingMonitor.Migrations
                 {
                     b.HasOne("TrainingMonitor.Models.Entities.User", "Admin")
                         .WithMany()
-                        .HasForeignKey("AdminId")
-                        .HasConstraintName("fk_measurement_sessions_users_admin_id");
+                        .HasForeignKey("AdminId");
 
                     b.HasOne("TrainingMonitor.Models.Entities.Unit", "Unit")
                         .WithMany()
-                        .HasForeignKey("UnitId")
-                        .HasConstraintName("fk_measurement_sessions_units_unit_id");
+                        .HasForeignKey("UnitId");
 
                     b.Navigation("Admin");
 
@@ -495,20 +383,17 @@ namespace TrainingMonitor.Migrations
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_records_categories_category_id");
+                        .IsRequired();
 
                     b.HasOne("TrainingMonitor.Models.Entities.MeasurementSession", "Session")
                         .WithMany()
-                        .HasForeignKey("SessionId")
-                        .HasConstraintName("fk_records_measurement_sessions_session_id");
+                        .HasForeignKey("SessionId");
 
                     b.HasOne("TrainingMonitor.Models.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_records_users_user_id");
+                        .IsRequired();
 
                     b.Navigation("Category");
 
@@ -523,8 +408,7 @@ namespace TrainingMonitor.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_refresh_tokens_users_user_id");
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -533,8 +417,7 @@ namespace TrainingMonitor.Migrations
                 {
                     b.HasOne("TrainingMonitor.Models.Entities.Unit", "Parent")
                         .WithMany()
-                        .HasForeignKey("ParentId")
-                        .HasConstraintName("fk_units_units_parent_id");
+                        .HasForeignKey("ParentId");
 
                     b.Navigation("Parent");
                 });
@@ -543,8 +426,7 @@ namespace TrainingMonitor.Migrations
                 {
                     b.HasOne("TrainingMonitor.Models.Entities.Unit", "Unit")
                         .WithMany()
-                        .HasForeignKey("UnitId")
-                        .HasConstraintName("fk_users_units_unit_id");
+                        .HasForeignKey("UnitId");
 
                     b.Navigation("Unit");
                 });
