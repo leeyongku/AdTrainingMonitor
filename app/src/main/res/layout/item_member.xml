@@ -60,5 +60,15 @@
             android:paddingHorizontal="8dp"
             android:paddingVertical="4dp"/>
 
+        <!-- 기록 보기 -->
+        <ImageView
+            android:id="@+id/ivViewRecords"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="8dp"
+            android:padding="2dp"
+            android:src="@android:drawable/ic_menu_recent_history"
+            android:contentDescription="기록 보기"/>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>
