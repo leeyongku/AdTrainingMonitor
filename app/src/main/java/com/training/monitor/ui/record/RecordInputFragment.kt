@@ -3,11 +3,8 @@
 package com.training.monitor.ui.record
 
 import android.app.DatePickerDialog
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,7 +21,6 @@ import com.training.monitor.R
 import com.training.monitor.databinding.DialogCreateSessionBinding
 import com.training.monitor.databinding.FragmentRecordInputBinding
 import com.training.monitor.ui.photo.PhotoViewActivity
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -226,26 +222,6 @@ class RecordInputFragment : Fragment() {
         cameraLauncher.launch(uri)
     }
 
-    /** 촬영해둔 임시 사진을 긴 변 1280px 이하로 축소하고 JPEG 품질 80으로 압축해 Base64로 인코딩한다. */
-    private fun encodePhotoBase64(): String? {
-        val file = pendingPhotoFile ?: return null
-
-        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        BitmapFactory.decodeFile(file.path, bounds)
-
-        var sampleSize = 1
-        while (bounds.outWidth / sampleSize > 1280 || bounds.outHeight / sampleSize > 1280) {
-            sampleSize *= 2
-        }
-
-        val bitmap = BitmapFactory.decodeFile(file.path, BitmapFactory.Options().apply { inSampleSize = sampleSize })
-            ?: return null
-
-        val output = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, output)
-        return Base64.encodeToString(output.toByteArray(), Base64.NO_WRAP)
-    }
-
     /** 선택된 세션/대원/종목과 입력값을 읽어 ViewModel에 저장을 요청한다. */
     private fun saveRecord() {
         val value = binding.etValue.text.toString().toDoubleOrNull()
@@ -268,7 +244,7 @@ class RecordInputFragment : Fragment() {
             categoryId = categoryId,
             value = value,
             note = binding.etNote.text.toString().ifBlank { null },
-            photoBase64 = encodePhotoBase64()
+            photoFile = pendingPhotoFile
         )
     }
 

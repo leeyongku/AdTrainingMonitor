@@ -3,6 +3,9 @@
 package com.training.monitor.ui.record
 
 import android.app.Application
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,7 +16,11 @@ import com.training.monitor.data.model.MemberDto
 import com.training.monitor.data.model.RecordRequest
 import com.training.monitor.data.model.SessionDto
 import com.training.monitor.data.model.SessionRequest
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
+import java.io.File
 
 /**
  * [RecordInputFragment]의 ViewModel.
@@ -129,12 +136,17 @@ class RecordInputViewModel(application: Application) : AndroidViewModel(applicat
         }?.grade ?: "-"
     }
 
-    /** 선택된 세션/대원/종목과 입력값으로 기록 저장 API를 호출한다. photoBase64가 있으면 함께 전송한다. */
-    fun saveRecord(sessionId: Long, userId: Long, categoryId: Long, value: Double, note: String?, photoBase64: String? = null) {
-        val req = RecordRequest(sessionId, userId, categoryId, value, note, photoBase64)
+    /**
+     * 선택된 세션/대원/종목과 입력값으로 기록 저장 API를 호출한다. photoFile이 있으면 리사이즈/압축/
+     * Base64 인코딩한 뒤 함께 전송한다. 인코딩은 파일 디코드·압축이 포함된 무거운 작업이라
+     * [Dispatchers.IO]에서 실행해 메인 스레드가 멈추지 않게 한다.
+     */
+    fun saveRecord(sessionId: Long, userId: Long, categoryId: Long, value: Double, note: String?, photoFile: File? = null) {
         val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
+                val photoBase64 = photoFile?.let { withContext(Dispatchers.IO) { encodePhotoBase64(it) } }
+                val req = RecordRequest(sessionId, userId, categoryId, value, note, photoBase64)
                 val response = api.createRecord(req)
                 if (response.isSuccessful) {
                     // 서버가 산출한 최종 등급을 응답 바디에서 꺼내 안내 메시지에 표시
@@ -148,6 +160,24 @@ class RecordInputViewModel(application: Application) : AndroidViewModel(applicat
                 _toastMessage.value = "오류: ${e.message}"
             }
         }
+    }
+
+    /** 촬영해둔 임시 사진을 긴 변 1280px 이하로 축소하고 JPEG 품질 80으로 압축해 Base64로 인코딩한다. */
+    private fun encodePhotoBase64(file: File): String? {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(file.path, bounds)
+
+        var sampleSize = 1
+        while (bounds.outWidth / sampleSize > 1280 || bounds.outHeight / sampleSize > 1280) {
+            sampleSize *= 2
+        }
+
+        val bitmap = BitmapFactory.decodeFile(file.path, BitmapFactory.Options().apply { inSampleSize = sampleSize })
+            ?: return null
+
+        val output = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, output)
+        return Base64.encodeToString(output.toByteArray(), Base64.NO_WRAP)
     }
 
     /** Fragment가 메시지를 Toast로 보여준 뒤 호출한다. */
