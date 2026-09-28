@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 대원 전용 메인 화면 상단 툴바 메뉴. menu_toolbar.xml(관리자)와 달리 "비밀번호 변경"이 추가된다. -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/actionCamera"
+        android:icon="@android:drawable/ic_menu_camera"
+        android:title="카메라"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/actionChangePassword"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="비밀번호 변경"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/actionLogout"
+        android:icon="@android:drawable/ic_lock_power_off"
+        android:title="로그아웃"
+        app:showAsAction="always"/>
+
+</menu>

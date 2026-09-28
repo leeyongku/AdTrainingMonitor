@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 관리자 네비게이션 그래프 -->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_admin"
+    app:startDestination="@id/memberListFragment">
+
+    <fragment
+        android:id="@+id/memberListFragment"
+        android:name="com.training.monitor.ui.member.MemberListFragment"
+        android:label="대원 관리"/>
+
+    <fragment
+        android:id="@+id/recordInputFragment"
+        android:name="com.training.monitor.ui.record.RecordInputFragment"
+        android:label="기록 입력"/>
+
+    <fragment
+        android:id="@+id/statsFragment"
+        android:name="com.training.monitor.ui.stats.StatsFragment"
+        android:label="통계"/>
+
+</navigation>
