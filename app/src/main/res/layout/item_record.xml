@@ -60,5 +60,15 @@
             android:textStyle="bold"
             android:textColor="#1A237E"/>
 
+        <!-- 사진 보기 아이콘 (사진이 있는 기록만 표시) -->
+        <ImageView
+            android:id="@+id/ivPhotoIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="12dp"
+            android:src="@android:drawable/ic_menu_camera"
+            android:visibility="gone"
+            android:contentDescription="사진 보기"/>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>
