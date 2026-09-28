@@ -49,15 +49,25 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- 기록 요약 -->
+    <!-- 기록 요약 (선택된 종목 기준) -->
     <TextView
         android:id="@+id/tvRecordSummary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="8dp"
         android:textSize="13sp"
         android:textColor="#666666"/>
+
+    <!-- 개인 최고 기록 (선택된 종목 기준) -->
+    <TextView
+        android:id="@+id/tvPersonalBest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:textColor="#1A237E"/>
 
     <!-- 기록 목록 -->
     <androidx.recyclerview.widget.RecyclerView
