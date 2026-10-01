@@ -11,16 +11,18 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.training.monitor.data.api.RetrofitClient
+import com.training.monitor.data.api.ApiService
 import com.training.monitor.data.model.CreateMemberRequest
 import com.training.monitor.data.model.MemberDto
 import com.training.monitor.data.model.ResetPasswordRequest
 import com.training.monitor.data.model.UnitDto
 import com.training.monitor.data.model.UpdateMemberRequest
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import javax.inject.Inject
 
 /**
  * [MemberListFragment]의 ViewModel.
@@ -33,7 +35,11 @@ import java.io.ByteArrayOutputStream
  * [MVVM 변경] Context가 필요한 `RetrofitClient.create()`를 호출해야 하므로 일반 `ViewModel`이
  * 아니라 [AndroidViewModel]을 상속해 Application Context(`getApplication()`)를 사용한다.
  */
-class MemberListViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class MemberListViewModel @Inject constructor(
+    application: Application,
+    private val apiService: ApiService
+) : AndroidViewModel(application) {
 
     // [MVVM 변경] 기존 Fragment의 `private var allMembers: List<MemberDto>`를 대체한다.
     // 외부(Fragment)에는 읽기 전용 LiveData만 노출하고, 값 변경은 이 클래스 내부에서만 한다.
@@ -60,13 +66,12 @@ class MemberListViewModel(application: Application) : AndroidViewModel(applicati
 
     /** 서버에서 대원 목록을 불러와 [members]를 갱신한다. */
     fun loadMembers() {
-        val api = RetrofitClient.create(getApplication())
         // [MVVM 변경] Fragment의 생명주기에 묶인 lifecycleScope 대신 ViewModel의 생명주기에 묶인
         // viewModelScope를 사용한다. 화면 회전 등으로 Fragment의 View가 재생성되어도 ViewModel은
         // 살아있으므로, 이미 시작된 네트워크 요청이 중간에 끊기지 않는다.
         viewModelScope.launch {
             try {
-                val response = api.getMembers()
+                val response = apiService.getMembers()
                 if (response.isSuccessful) {
                     _members.value = response.body() ?: emptyList()
                 }
@@ -78,10 +83,9 @@ class MemberListViewModel(application: Application) : AndroidViewModel(applicati
 
     /** 서버에서 등록 가능한 계급 목록을 불러와 [ranks]를 갱신한다. */
     fun loadRanks() {
-        val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
-                val response = api.getRanks()
+                val response = apiService.getRanks()
                 if (response.isSuccessful) {
                     _ranks.value = response.body() ?: emptyList()
                 }
@@ -93,10 +97,9 @@ class MemberListViewModel(application: Application) : AndroidViewModel(applicati
 
     /** 서버에서 등록 가능한 소속 부대 목록을 불러와 [units]를 갱신한다. */
     fun loadUnits() {
-        val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
-                val response = api.getUnits()
+                val response = apiService.getUnits()
                 if (response.isSuccessful) {
                     _units.value = response.body() ?: emptyList()
                 }
@@ -112,11 +115,10 @@ class MemberListViewModel(application: Application) : AndroidViewModel(applicati
      * 포함된 무거운 작업이라 [Dispatchers.IO]에서 실행해 메인 스레드가 멈추지 않게 한다.
      */
     fun createMember(req: CreateMemberRequest, photoUri: Uri? = null) {
-        val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
                 val photoBase64 = photoUri?.let { withContext(Dispatchers.IO) { encodePhotoBase64(it) } }
-                val response = api.createMember(req.copy(photoBase64 = photoBase64))
+                val response = apiService.createMember(req.copy(photoBase64 = photoBase64))
                 if (response.isSuccessful) {
                     _toastMessage.value = "${req.name} 대원을 등록했습니다."
                     loadMembers()
@@ -164,12 +166,11 @@ class MemberListViewModel(application: Application) : AndroidViewModel(applicati
      * (둘 다 지정된 경우 삭제가 우선 적용됨 — [encodePhotoBase64]는 [removePhoto]가 true면 호출하지 않는다).
      */
     fun updateMember(memberId: Long, req: UpdateMemberRequest, photoUri: Uri? = null, removePhoto: Boolean = false) {
-        val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
                 val photoBase64 = if (removePhoto) null
                     else photoUri?.let { withContext(Dispatchers.IO) { encodePhotoBase64(it) } }
-                val response = api.updateMember(memberId, req.copy(photoBase64 = photoBase64, removePhoto = removePhoto))
+                val response = apiService.updateMember(memberId, req.copy(photoBase64 = photoBase64, removePhoto = removePhoto))
                 if (response.isSuccessful) {
                     _toastMessage.value = "${req.name} 정보를 수정했습니다."
                     loadMembers()
@@ -184,10 +185,9 @@ class MemberListViewModel(application: Application) : AndroidViewModel(applicati
 
     /** 서버에 비밀번호 재설정을 요청한다. */
     fun resetPassword(member: MemberDto, newPassword: String) {
-        val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
-                val response = api.resetPassword(member.id, ResetPasswordRequest(newPassword))
+                val response = apiService.resetPassword(member.id, ResetPasswordRequest(newPassword))
                 _toastMessage.value = if (response.isSuccessful) {
                     "${member.name}의 비밀번호를 재설정했습니다."
                 } else {

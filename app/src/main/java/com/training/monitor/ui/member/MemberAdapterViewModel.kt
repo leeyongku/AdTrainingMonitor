@@ -3,6 +3,8 @@
 package com.training.monitor.ui.member
 
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 /**
  * [MemberAdapter]에 대응하는 ViewModel.
@@ -14,4 +16,5 @@ import androidx.lifecycle.ViewModel
  * 화면 컴포넌트에 대응하는 ViewModel을 둔다"는 프로젝트 컨벤션을 일관되게 유지하기 위한
  * 목적으로만 존재한다.
  */
-class MemberAdapterViewModel : ViewModel()
+@HiltViewModel
+class MemberAdapterViewModel @Inject constructor() : ViewModel()

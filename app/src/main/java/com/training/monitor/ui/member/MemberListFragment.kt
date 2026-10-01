@@ -29,6 +29,7 @@ import com.training.monitor.databinding.DialogEditMemberBinding
 import com.training.monitor.databinding.FragmentMemberListBinding
 import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 
 /**
@@ -40,6 +41,7 @@ import java.io.File
  * 서버 통신과 상태 보관은 [MemberListViewModel]이 담당하고, 여기서는 그 결과를
  * 관찰(observe)해 화면에 반영하기만 한다.
  */
+@AndroidEntryPoint
 class MemberListFragment : Fragment() {
 
     private var _binding: FragmentMemberListBinding? = null
