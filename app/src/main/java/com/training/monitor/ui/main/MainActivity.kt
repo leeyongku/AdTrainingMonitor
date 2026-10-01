@@ -28,6 +28,7 @@ import com.training.monitor.databinding.ActivityMainBinding
 import com.training.monitor.ui.login.LoginActivity
 import com.training.monitor.ui.password.ChangePasswordActivity
 import com.training.monitor.ui.photo.PhotoViewActivity
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -43,6 +44,7 @@ import java.io.File
  * [MVVM 변경] 역할 판별(isAdmin)과 로그아웃 처리는 [MainViewModel]로 옮겼다. 이 클래스는
  * NavController/BottomNavigationView/Toolbar 같은 View 객체를 다루는 역할만 담당한다.
  */
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding

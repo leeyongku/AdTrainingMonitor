@@ -5,6 +5,8 @@ package com.training.monitor.ui.main
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.training.monitor.data.local.TokenManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 /**
  * [MainActivity]의 ViewModel.
@@ -14,9 +16,11 @@ import com.training.monitor.data.local.TokenManager
  * (관리자 여부 판별, 로그아웃 시 토큰 삭제)을 ViewModel로 옮겨 Activity가 순수하게
  * 네비게이션/메뉴 연결 같은 View 관심사만 담당하도록 했다.
  */
-class MainViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val tokenManager = TokenManager(application)
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    application: Application,
+    private val tokenManager: TokenManager
+) : AndroidViewModel(application) {
 
     /** 로그인한 사용자가 관리자인지 여부 — Activity가 이 값으로 네비게이션 그래프/메뉴를 분기한다. */
     val isAdmin: Boolean get() = tokenManager.isAdmin
