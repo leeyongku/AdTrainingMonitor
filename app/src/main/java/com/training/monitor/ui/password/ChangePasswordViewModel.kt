@@ -7,10 +7,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.training.monitor.data.api.RetrofitClient
+import com.training.monitor.data.api.ApiService
 import com.training.monitor.data.local.TokenManager
 import com.training.monitor.data.model.ChangePasswordRequest
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * [ChangePasswordActivity]의 ViewModel.
@@ -18,9 +20,12 @@ import kotlinx.coroutines.launch
  * [LoginViewModel]과 동일한 패턴: 입력값 검증 + API 호출 + 로딩/결과 상태 보관을 여기서
  * 전담하고, Activity는 그 상태를 관찰(observe)해서 화면만 갱신한다.
  */
-class ChangePasswordViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val tokenManager = TokenManager(application)
+@HiltViewModel
+class ChangePasswordViewModel @Inject constructor(
+    application: Application,
+    private val apiService: ApiService,
+    private val tokenManager: TokenManager
+) : AndroidViewModel(application) {
 
     private val _loading = MutableLiveData(false)
     val loading: LiveData<Boolean> = _loading
@@ -52,11 +57,10 @@ class ChangePasswordViewModel(application: Application) : AndroidViewModel(appli
         }
 
         _loading.value = true
-        val api = RetrofitClient.create(getApplication())
 
         viewModelScope.launch {
             try {
-                val response = api.changePassword(ChangePasswordRequest(currentPassword, newPassword))
+                val response = apiService.changePassword(ChangePasswordRequest(currentPassword, newPassword))
                 if (response.isSuccessful) {
                     tokenManager.mustChangePassword = false
                     _changeSuccess.value = true

@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.training.monitor.databinding.ActivityChangePasswordBinding
 import com.training.monitor.ui.login.LoginActivity
 import com.training.monitor.ui.main.MainActivity
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * 비밀번호 변경 화면. 두 가지 경로로 진입한다.
@@ -26,6 +27,7 @@ import com.training.monitor.ui.main.MainActivity
  *    "비밀번호 변경" 메뉴로 직접 연다. 뒤로가기/보조 버튼은 그냥 "취소"로 동작해 원래
  *    화면(MainActivity)으로 돌아가고, 성공 시에도 새 Activity를 띄우지 않고 그대로 finish()한다.
  */
+@AndroidEntryPoint
 class ChangePasswordActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChangePasswordBinding
