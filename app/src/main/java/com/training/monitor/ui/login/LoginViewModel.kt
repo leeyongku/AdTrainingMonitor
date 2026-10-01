@@ -7,10 +7,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.training.monitor.data.api.RetrofitClient
+import com.training.monitor.data.api.ApiService
 import com.training.monitor.data.local.TokenManager
 import com.training.monitor.data.model.LoginRequest
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * [LoginActivity]의 ViewModel.
@@ -20,9 +22,12 @@ import kotlinx.coroutines.launch
  * "로그인 요청 자체 + 로딩/결과 상태 보관"을 ViewModel로 옮기고, Activity는 이 상태를
  * 관찰(observe)해서 화면(ProgressBar/Toast/화면 전환)만 갱신하는 역할로 축소된다.
  */
-class LoginViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val tokenManager = TokenManager(application)
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    application: Application,
+    private val apiService: ApiService,
+    private val tokenManager: TokenManager
+) : AndroidViewModel(application) {
 
     // [MVVM 변경] 기존 Activity의 setLoading()이 직접 만지던 "로딩 중" 상태를 LiveData로 노출한다.
     private val _loading = MutableLiveData(false)
@@ -56,11 +61,10 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         _loading.value = true
-        val api = RetrofitClient.create(getApplication())
 
         viewModelScope.launch {
             try {
-                val response = api.login(LoginRequest(militaryId, password))
+                val response = apiService.login(LoginRequest(militaryId, password))
                 if (response.isSuccessful) {
                     val body = response.body()!!
                     tokenManager.accessToken = body.accessToken

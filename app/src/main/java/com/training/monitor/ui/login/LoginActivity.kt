@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import com.training.monitor.databinding.ActivityLoginBinding
 import com.training.monitor.ui.main.MainActivity
 import com.training.monitor.ui.password.ChangePasswordActivity
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * 앱 진입점(AndroidManifest의 LAUNCHER Activity).
@@ -26,6 +27,7 @@ import com.training.monitor.ui.password.ChangePasswordActivity
  * 로그인 API 호출과 로딩/결과 상태 보관은 [LoginViewModel]이 담당하고, 여기서는
  * 그 결과를 관찰(observe)해 화면에 반영하기만 한다.
  */
+@AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
 
     //lateinit 변수를 선언할 때 바로 초기화하지 않고, 나중에 값을 활달하겠다는 뜻
