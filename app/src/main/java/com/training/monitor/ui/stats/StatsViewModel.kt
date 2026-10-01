@@ -7,12 +7,14 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.training.monitor.data.api.RetrofitClient
+import com.training.monitor.data.api.ApiService
 import com.training.monitor.data.model.UnitDto
 import com.training.monitor.data.model.UnitStatsDto
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 /**
  * [StatsFragment]의 ViewModel.
@@ -22,7 +24,11 @@ import java.time.format.DateTimeFormatter
  * 상태로 보관하고, 그 데이터를 실제 PieChart/BarChart로 그리는 일(MPAndroidChart API 호출)은
  * View의 책임이므로 Fragment에 남겨둔다.
  */
-class StatsViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class StatsViewModel @Inject constructor(
+    application: Application,
+    private val apiService: ApiService
+) : AndroidViewModel(application) {
 
     private val fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
@@ -55,10 +61,9 @@ class StatsViewModel(application: Application) : AndroidViewModel(application) {
 
     /** 부대 목록을 불러온 뒤, 기본 계층(여단)으로 [unitsForLevel]을 채운다. */
     private fun loadUnits() {
-        val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
-                val response = api.getUnits()
+                val response = apiService.getUnits()
                 if (response.isSuccessful) {
                     allUnits = response.body().orEmpty()
                     setLevel(0)
@@ -88,10 +93,9 @@ class StatsViewModel(application: Application) : AndroidViewModel(application) {
     fun loadStats(unitId: Long) {
         val from = _dateFrom.value ?: return
         val to = _dateTo.value ?: return
-        val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
-                val response = api.unitStats(unitId, from.format(fmt), to.format(fmt))
+                val response = apiService.unitStats(unitId, from.format(fmt), to.format(fmt))
                 if (response.isSuccessful) {
                     _stats.value = response.body()
                 }

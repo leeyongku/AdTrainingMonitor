@@ -17,6 +17,7 @@ import androidx.fragment.app.viewModels
 import com.github.mikephil.charting.data.*
 import com.training.monitor.R
 import com.training.monitor.databinding.FragmentStatsBinding
+import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -28,6 +29,7 @@ import java.util.Calendar
  * [MVVM 변경] 이 클래스는 이제 "화면을 그리는 View" 역할만 한다. 조회 기간 상태와 통계
  * API 호출은 [StatsViewModel]이 담당하고, 여기서는 그 결과를 실제 차트로 그리는 일만 한다.
  */
+@AndroidEntryPoint
 class StatsFragment : Fragment() {
 
     private var _binding: FragmentStatsBinding? = null
