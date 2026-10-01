@@ -32,7 +32,7 @@ import javax.inject.Inject
  * ViewModel로 옮기고, Fragment는 여기서 노출하는 LiveData를 관찰(observe)해 화면만
  * 갱신하는 역할로 축소된다.
  *
- * [MVVM 변경] Context가 필요한 `RetrofitClient.create()`를 호출해야 하므로 일반 `ViewModel`이
+ * [MVVM 변경] 대원 사진을 Base64로 인코딩하는 `encodePhotoBase64()` 메서드에서 ContentResolver를 사용해야 하므로 일반 `ViewModel`이
  * 아니라 [AndroidViewModel]을 상속해 Application Context(`getApplication()`)를 사용한다.
  */
 @HiltViewModel
