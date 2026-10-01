@@ -3,6 +3,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
 }
 
 // 릴리스 서명 정보. keyStore/keystore.properties(git에는 올라가지 않음, .gitignore의 /keyStore/ 참고)에서
@@ -115,6 +117,10 @@ dependencies {
 
     // 토큰 암호화 저장
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
+
+    // Hilt (의존성 주입)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.appcompat)
