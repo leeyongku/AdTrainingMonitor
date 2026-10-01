@@ -7,10 +7,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.training.monitor.data.api.RetrofitClient
+import com.training.monitor.data.api.ApiService
 import com.training.monitor.data.model.RecordDto
 import com.training.monitor.data.model.TrendPoint
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * [MyRecordFragment]의 ViewModel.
@@ -20,7 +22,11 @@ import kotlinx.coroutines.launch
  * 그 데이터를 화면에 어떻게 그릴지(요약 텍스트 포맷, 차트 Entry 변환/스타일)는 View의
  * 책임으로 남겨 Fragment에 그대로 둔다.
  */
-class MyRecordViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class MyRecordViewModel @Inject constructor(
+    application: Application,
+    private val apiService: ApiService
+) : AndroidViewModel(application) {
 
     // [MVVM 변경] 기존에는 records 응답을 받는 즉시 개수만 텍스트로 만들어 버렸다.
     // 여기서는 원본 리스트 자체를 보관해, "몇 건인지"를 어떻게 표시할지는 Fragment가 결정하게 한다.
@@ -35,10 +41,9 @@ class MyRecordViewModel(application: Application) : AndroidViewModel(application
 
     /** 본인 기록 전체를 조회해 [records]를 갱신한다. */
     fun loadRecords() {
-        val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
-                val response = api.myRecords()
+                val response = apiService.myRecords()
                 if (response.isSuccessful) {
                     _records.value = response.body() ?: emptyList()
                 }
@@ -53,10 +58,9 @@ class MyRecordViewModel(application: Application) : AndroidViewModel(application
      * @param categoryId 종목 ID (1: 3km 달리기, 2: 팔굽혀펴기, 3: 윗몸일으키기)
      */
     fun loadTrend(categoryId: Long) {
-        val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
-                val response = api.trend(categoryId = categoryId)
+                val response = apiService.trend(categoryId = categoryId)
                 if (response.isSuccessful) {
                     _trendPoints.value = response.body() ?: emptyList()
                 }
@@ -68,10 +72,9 @@ class MyRecordViewModel(application: Application) : AndroidViewModel(application
 
     /** 내 측정 기록을 전부 삭제하고, 성공 시 목록을 새로고침한다. */
     fun deleteAllMyRecords() {
-        val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
-                val response = api.deleteMyRecords()
+                val response = apiService.deleteMyRecords()
                 if (response.isSuccessful) {
                     _toastMessage.value = "전체 기록을 삭제했습니다."
                     loadRecords()
@@ -86,10 +89,9 @@ class MyRecordViewModel(application: Application) : AndroidViewModel(application
 
     /** 내 측정 기록 중 특정 종목만 전부 삭제하고, 성공 시 목록을 새로고침한다. */
     fun deleteMyRecordsByCategory(categoryId: Long) {
-        val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
-                val response = api.deleteMyRecordsByCategory(categoryId)
+                val response = apiService.deleteMyRecordsByCategory(categoryId)
                 if (response.isSuccessful) {
                     _toastMessage.value = "선택한 종목의 기록을 삭제했습니다."
                     loadRecords()

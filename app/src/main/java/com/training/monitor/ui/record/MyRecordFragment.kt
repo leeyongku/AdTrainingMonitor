@@ -23,6 +23,7 @@ import com.training.monitor.data.model.RecordDto
 import com.training.monitor.data.model.TrendPoint
 import com.training.monitor.databinding.FragmentMyRecordBinding
 import com.training.monitor.ui.photo.PhotoViewActivity
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * 대원(MEMBER 역할) 전용 화면: [tabCategory]로 종목을 고르면, 그 종목 기준으로
@@ -33,6 +34,7 @@ import com.training.monitor.ui.photo.PhotoViewActivity
  * [MyRecordViewModel]이 담당하고, 여기서는 그 데이터를 종목별로 걸러 요약 텍스트/목록/차트로
  * 변환해 그리기만 한다.
  */
+@AndroidEntryPoint
 class MyRecordFragment : Fragment() {
 
     private var _binding: FragmentMyRecordBinding? = null
