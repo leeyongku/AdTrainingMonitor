@@ -1,4 +1,4 @@
-# 기록 사진 첨부 기능 Implementation Plan
+ # 기록 사진 첨부 기능 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 

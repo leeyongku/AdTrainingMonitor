@@ -11,6 +11,11 @@ import com.training.monitor.data.api.RetrofitClient
 import com.training.monitor.data.model.RecordDto
 import kotlinx.coroutines.launch
 
+/**
+ * [RecordListViewFragment]의 ViewModel. 특정 대원(userId)의 전체 측정 기록 목록을
+ * 서버에서 불러와 화면에 노출할 상태([records], [toastMessage])로 보관한다.
+ * 실제 기록 목록을 그리는 일(RecyclerView 갱신)은 Fragment의 책임으로 남겨둔다.
+ */
 class RecordListViewViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _records = MutableLiveData<List<RecordDto>>(emptyList())
@@ -32,6 +37,43 @@ class RecordListViewViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
+    /** 기록 하나를 삭제하고, 성공 시 목록을 새로고침한다. */
+    fun deleteRecord(recordId: Long, userId: Long) {
+        val api = RetrofitClient.create(getApplication())
+        viewModelScope.launch {
+            try {
+                val response = api.deleteRecord(recordId)
+                if (response.isSuccessful) {
+                    _toastMessage.value = "기록을 삭제했습니다."
+                    loadRecords(userId)
+                } else {
+                    _toastMessage.value = "기록 삭제 실패"
+                }
+            } catch (e: Exception) {
+                _toastMessage.value = "서버 연결 실패: ${e.message}"
+            }
+        }
+    }
+
+    /** 지정한 대원(userId)의 전체 측정 기록을 삭제하고, 성공 시 목록을 새로고침한다. */
+    fun deleteAllRecords(userId: Long) {
+        val api = RetrofitClient.create(getApplication())
+        viewModelScope.launch {
+            try {
+                val response = api.deleteAllUserRecords(userId)
+                if (response.isSuccessful) {
+                    _toastMessage.value = "전체 기록을 삭제했습니다."
+                    loadRecords(userId)
+                } else {
+                    _toastMessage.value = "전체 삭제 실패"
+                }
+            } catch (e: Exception) {
+                _toastMessage.value = "서버 연결 실패: ${e.message}"
+            }
+        }
+    }
+
+    /** Fragment가 메시지를 Toast로 보여준 뒤 호출한다. */
     fun onToastMessageShown() {
         _toastMessage.value = null
     }

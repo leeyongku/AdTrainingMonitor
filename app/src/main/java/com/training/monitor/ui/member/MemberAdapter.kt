@@ -2,7 +2,10 @@
 
 package com.training.monitor.ui.member
 
+import android.graphics.BitmapFactory
+import android.util.Base64
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -22,12 +25,16 @@ import com.training.monitor.databinding.ItemMemberBinding
  */
 class MemberAdapter : ListAdapter<MemberDto, MemberAdapter.ViewHolder>(DiffCallback) {
 
-    /** 항목(행) 클릭 콜백. 호출부([MemberListFragment] 등)에서 설정해 상세 화면 이동 등에 사용. */
+    /** 항목(행) 클릭 콜백. [MemberListFragment]가 관리자용 기록 열람 화면으로 이동시키는 데 사용. */
     var onItemClick: ((MemberDto) -> Unit)? = null
 
-    /** "기록 보기" 아이콘 클릭 콜백. 호출부가 관리자용 기록 열람 화면으로 이동시키는 데 사용. */
-    var onRecordsClick: ((MemberDto) -> Unit)? = null
+    /** 열쇠 모양 "비밀번호 변경" 아이콘 클릭 콜백. 호출부가 비밀번호 재설정 다이얼로그를 띄우는 데 사용. */
+    var onResetPasswordClick: ((MemberDto) -> Unit)? = null
 
+    /** 연필 모양 "정보 수정" 아이콘 클릭 콜백. 호출부가 이름/계급/부대/사진 수정 다이얼로그를 띄우는 데 사용. */
+    var onEditClick: ((MemberDto) -> Unit)? = null
+
+    /** 대원 목록의 행(row) 하나에 대응하는 뷰 홀더. ViewBinding으로 뷰를 참조한다. */
     inner class ViewHolder(private val binding: ItemMemberBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
@@ -37,8 +44,22 @@ class MemberAdapter : ListAdapter<MemberDto, MemberAdapter.ViewHolder>(DiffCallb
             binding.tvName.text = "${member.rank ?: ""} ${member.name}".trim()
             binding.tvMilitaryId.text = member.militaryId
             binding.tvUnit.text = member.unitName ?: "-"
+
+            // 얼굴 사진이 있으면 디코딩해서 보여주고, 없으면 기존 이모지 아이콘을 그대로 둔다.
+            if (member.photoBase64 != null) {
+                val bytes = Base64.decode(member.photoBase64, Base64.NO_WRAP)
+                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                binding.ivProfilePhoto.setImageBitmap(bitmap)
+                binding.ivProfilePhoto.visibility = View.VISIBLE
+                binding.tvProfileEmoji.visibility = View.GONE
+            } else {
+                binding.ivProfilePhoto.visibility = View.GONE
+                binding.tvProfileEmoji.visibility = View.VISIBLE
+            }
+
             binding.root.setOnClickListener { onItemClick?.invoke(member) }
-            binding.ivViewRecords.setOnClickListener { onRecordsClick?.invoke(member) }
+            binding.ivResetPassword.setOnClickListener { onResetPasswordClick?.invoke(member) }
+            binding.ivEditMember.setOnClickListener { onEditClick?.invoke(member) }
         }
     }
 

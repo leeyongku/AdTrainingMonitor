@@ -58,9 +58,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="계급 (선택)"
+            android:text="계급 *"
             android:textSize="13sp"
-            android:textColor="#666666"
+            android:textColor="@color/text_secondary"
             android:layout_marginBottom="4dp"/>
 
         <Spinner
@@ -73,9 +73,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="소속 부대 (선택)"
+            android:text="소속 부대 *"
             android:textSize="13sp"
-            android:textColor="#666666"
+            android:textColor="@color/text_secondary"
             android:layout_marginBottom="4dp"/>
 
         <Spinner
@@ -84,6 +84,47 @@
             android:layout_height="48dp"
             android:background="@drawable/spinner_background"
             android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="얼굴 사진 (선택)"
+            android:textSize="13sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="4dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <ImageView
+                android:id="@+id/ivMemberPhotoPreview"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginEnd="12dp"
+                android:scaleType="centerCrop"
+                android:background="@color/background_badge"
+                android:contentDescription="얼굴 사진 미리보기"/>
+
+            <Button
+                android:id="@+id/btnMemberCamera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="촬영"
+                android:layout_marginEnd="8dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+
+            <Button
+                android:id="@+id/btnMemberGallery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="갤러리"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

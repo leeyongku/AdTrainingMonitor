@@ -11,9 +11,11 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.github.mikephil.charting.data.*
+import com.training.monitor.R
 import com.training.monitor.databinding.FragmentStatsBinding
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -49,54 +51,50 @@ class StatsFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * 뷰가 생성된 직후 호출된다. 여기서 하는 일은 크게 세 가지다.
+     * 1. 계층 스피너("여단/대대/.../분대")를 고정 목록으로 채우고, 선택이 바뀔 때마다
+     *    ViewModel에 알려 그 계층에 속한 부대 목록을 다시 조회하게 한다.
+     * 2. ViewModel의 각 LiveData(부대 목록, 조회 기간, 통계 결과, 토스트 메시지)를 관찰해
+     *    값이 바뀔 때마다 화면 요소(스피너/라벨/차트)를 갱신한다 — 실제 네트워크 호출이나
+     *    상태 보관은 전부 [StatsViewModel]의 책임이고, 이 함수는 "그 결과를 어떻게 그릴지"만
+     *    담당한다(MVVM에서 View가 맡는 역할).
+     * 3. 날짜 라벨/조회 버튼에 클릭 리스너를 연결한다.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        binding.spinnerLevel.adapter = ArrayAdapter(
-//            requireContext(), android.R.layout.simple_spinner_item, levelLabels
-//        ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-
+        // 계층 스피너는 서버 조회 없이 항상 고정된 5단계(levelLabels)로 채운다 — 이 값
+        // 자체는 UnitDto.level(0~4)과 1:1로 대응하는 상수라 매번 서버에 물어볼 필요가 없다.
         binding.spinnerLevel.adapter = ArrayAdapter(
             requireContext(), android.R.layout.simple_spinner_item, levelLabels
         ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
 
-//
-//        binding.spinnerLevel.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-//                viewModel.setLevel(position)
-//            }
-//            override fun onNothingSelected(parent: AdapterView<*>?) {}
-//        }
-
+        // 계층을 바꾸면(예: "대대" -> "중대") 그 계층에 속한 실제 부대 목록 자체가 달라지므로,
+        // 스피너 선택 위치(position)를 그대로 level 값으로 넘겨 ViewModel에 재조회를 요청한다.
+        // 그 결과는 아래 unitsForLevel observe 콜백에서 spinnerUnit에 채워진다.
         binding.spinnerLevel.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override  fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 viewModel.setLevel(position)
             }
+            // 스피너는 항상 기본 선택값이 있어서 실제로 "선택 없음" 상태가 되는 경우가 없다.
+            // 인터페이스 구현을 위해 빈 채로 둔다.
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        // 선택된 계층에 해당하는 부대 목록이 바뀔 때마다 부대 스피너를 다시 채운다.
-        // 실제 선택된 부대는(RecordInputFragment의 spinnerSession/spinnerMember와 동일한 방식으로)
-        // 조회 시점에 spinnerUnit.selectedItemPosition으로 이 리스트에서 찾는다.
-//        viewModel.unitsForLevel.observe(viewLifecycleOwner) { units ->
-//            val labels = units.map { it.name }
-//            binding.spinnerUnit.adapter = ArrayAdapter(
-//                requireContext(), android.R.layout.simple_spinner_item, labels
-//            ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-//
-//            // 최초 부대 목록 로딩이 끝나 부대 스피너가 채워지면, 그 시점에 딱 한 번 자동으로 통계를 조회한다.
-//            if (!hasLoadedInitialStats && units.isNotEmpty()) {
-//                hasLoadedInitialStats = true
-//                viewModel.loadStats(units[0].id)
-//            }
-//        }
-
+        // 계층이 바뀔 때마다(혹은 최초 진입 시) ViewModel이 그 계층의 부대 목록을 새로 내려주면,
+        // 부대 선택 스피너(spinnerUnit)를 그 목록으로 다시 채운다.
         viewModel.unitsForLevel.observe(viewLifecycleOwner) { units ->
             val labels = units.map { it.name }
             binding.spinnerUnit.adapter = ArrayAdapter(
                 requireContext(), android.R.layout.simple_spinner_item, labels
             ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
 
+            // 화면에 막 진입했을 때만("총 0명" 같은 빈 화면으로 시작하지 않도록) 첫 번째
+            // 부대를 자동으로 조회한다. 이후 계층/부대를 바꿔도 hasLoadedInitialStats가
+            // true로 남아있어 자동 재조회는 더 이상 일어나지 않고, 사용자가 "조회" 버튼을
+            // 눌러야만 통계가 갱신된다(날짜 선택과 동일하게, 선택 변경 즉시 조회하지 않는
+            // 일관된 동작을 주기 위함).
             if(!hasLoadedInitialStats && units.isNotEmpty()){
                 hasLoadedInitialStats = true
                 viewModel.loadStats(units[0].id)
@@ -127,9 +125,13 @@ class StatsFragment : Fragment() {
 
         binding.tvDateFrom.setOnClickListener { showDatePicker(isFrom = true) }
         binding.tvDateTo.setOnClickListener { showDatePicker(isFrom = false) }
+        // "조회" 버튼을 눌러야만 현재 스피너에서 선택된 부대 기준으로 통계를 다시 불러온다.
+        // 스피너의 선택 위치(index)로 unitsForLevel 원본 리스트에서 실제 UnitDto를 찾아 id를 넘긴다.
         binding.btnSearch.setOnClickListener {
             val units = viewModel.unitsForLevel.value ?: emptyList()
             val unitIdx = binding.spinnerUnit.selectedItemPosition
+            // 부대 목록이 비어있거나 스피너가 아직 갱신되기 전(-1) 같은 비정상 상태에서는
+            // 조회를 시도하지 않고 조용히 무시한다.
             if (unitIdx < 0 || unitIdx >= units.size) return@setOnClickListener
             viewModel.loadStats(units[unitIdx].id)
         }
@@ -142,11 +144,11 @@ class StatsFragment : Fragment() {
     private fun drawPieChart(distribution: Map<String, Int>) {
         // 등급별 고정 색상 — 특급(우수)일수록 파란 계열, 불합격일수록 붉은 계열로 시각적 위계를 준다.
         val gradeColors = mapOf(
-            "특급" to Color.parseColor("#1565C0"),
-            "1급" to Color.parseColor("#2E7D32"),
-            "2급" to Color.parseColor("#F57F17"),
-            "3급" to Color.parseColor("#E65100"),
-            "불합격" to Color.parseColor("#B71C1C")
+            "특급" to ContextCompat.getColor(requireContext(), R.color.grade_top),
+            "1급" to ContextCompat.getColor(requireContext(), R.color.grade_1),
+            "2급" to ContextCompat.getColor(requireContext(), R.color.grade_2),
+            "3급" to ContextCompat.getColor(requireContext(), R.color.grade_3),
+            "불합격" to ContextCompat.getColor(requireContext(), R.color.color_danger)
         )
 
         val entries = distribution.map { PieEntry(it.value.toFloat(), it.key) }
@@ -181,9 +183,11 @@ class StatsFragment : Fragment() {
         val grades = listOf("특급", "1급", "2급", "3급", "불합격")
         val categories = byCategory.keys.toList()
         val colors = listOf(
-            Color.parseColor("#1565C0"), Color.parseColor("#2E7D32"),
-            Color.parseColor("#F57F17"), Color.parseColor("#E65100"),
-            Color.parseColor("#B71C1C")
+            ContextCompat.getColor(requireContext(), R.color.grade_top),
+            ContextCompat.getColor(requireContext(), R.color.grade_1),
+            ContextCompat.getColor(requireContext(), R.color.grade_2),
+            ContextCompat.getColor(requireContext(), R.color.grade_3),
+            ContextCompat.getColor(requireContext(), R.color.color_danger)
         )
 
         // 등급마다 하나의 BarDataSet을 만들고, 각 데이터셋 안에서 종목(x축) 순서로 값을 채운다.

@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -200,16 +201,26 @@ class RecordInputFragment : Fragment() {
         val value = binding.etValue.text.toString().toDoubleOrNull()
         val grade = viewModel.previewGrade(value)
 
-        binding.tvGradePreview.text = grade
         // 등급별 색상 강조 (특급=파랑 ~ 불합격=빨강 순으로 시각적 위계 표현)
-        binding.tvGradePreview.setTextColor(when (grade) {
-            "특급" -> 0xFF1565C0.toInt()
-            "1급" -> 0xFF2E7D32.toInt()
-            "2급" -> 0xFFF57F17.toInt()
-            "3급" -> 0xFFE65100.toInt()
-            "불합격" -> 0xFFB71C1C.toInt()
-            else -> 0xFF666666.toInt()
-        })
+//        binding.tvGradePreview.setTextColor(when (grade) {
+//                        "특급" -> 0xFF1565C0.toInt()
+//                        "1급" -> 0xFF2E7D32.toInt()
+//                        "2급" -> 0xFFF57F17.toInt()
+//                        "3급" -> 0xFFE65100.toInt()
+//                        "불합격" -> 0xFFB71C1C.toInt()
+//                        else -> 0xFF666666.toInt()
+//        })
+
+        binding.tvGradePreview.text = grade
+
+        binding.tvGradePreview.setTextColor(ContextCompat.getColor(requireContext(), when (grade) {
+            "특급" -> R.color.grade_top
+            "1급" -> R.color.grade_1
+            "2급" -> R.color.grade_2
+            "3급" -> R.color.grade_3
+            "불합격" -> R.color.color_danger
+            else -> R.color.text_secondary
+        }))
     }
 
     /** 앱 캐시 폴더에 임시 파일을 만들고, FileProvider로 카메라 앱에 촬영을 요청한다. */

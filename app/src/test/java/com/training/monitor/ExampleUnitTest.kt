@@ -1,4 +1,4 @@
-package com.example.trainingmonitor
+package com.training.monitor
 
 import org.junit.Test
 

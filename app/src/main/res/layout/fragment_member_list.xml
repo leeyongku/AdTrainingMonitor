@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5">
+    android:background="@color/background_screen">
 
     <!-- 검색창 -->
     <com.google.android.material.textfield.TextInputLayout
@@ -31,18 +31,19 @@
         android:layout_marginStart="16dp"
         android:layout_marginBottom="8dp"
         android:textSize="13sp"
-        android:textColor="#666666"/>
+        android:textColor="@color/text_secondary"/>
 
     <!-- 대원 목록 -->
+
+    <!-- 대원 추가 버튼 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMembers"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp"
-        android:clipToPadding="false"/>
+        android:clipToPadding="false"
+        android:padding="8dp" />
 
-    <!-- 대원 추가 버튼 -->
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fabAddMember"
         android:layout_width="wrap_content"

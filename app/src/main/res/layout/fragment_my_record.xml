@@ -5,9 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5">
+    android:background="@color/background_screen">
 
-    <!-- 종목 선택 탭 -->
+    <!-- 종목 선택 탭 — 전체 삭제 버튼과 섞이지 않도록 이 줄에는 탭만 두고 꽉 채운다 -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabCategory"
         android:layout_width="match_parent"
@@ -15,9 +15,9 @@
         android:background="@color/white"
         app:tabMode="scrollable"
         app:tabGravity="start"
-        app:tabTextColor="#666666"
-        app:tabSelectedTextColor="#1A237E"
-        app:tabIndicatorColor="#1A237E"/>
+        app:tabTextColor="@color/text_secondary"
+        app:tabSelectedTextColor="@color/brand_primary"
+        app:tabIndicatorColor="@color/brand_primary"/>
 
     <!-- 추이 그래프 -->
     <androidx.cardview.widget.CardView
@@ -39,13 +39,42 @@
                 android:text="기록 추이"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="#333333"
+                android:textColor="@color/text_primary"
                 android:layout_marginBottom="8dp"/>
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/lineChart"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="120dp"/>
+
+            <!-- 삭제 버튼 2개는 여기, 그래프 바로 아래에 한 쌍으로 묶어 둔다 (상단 탭과는 분리) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <!-- 현재 선택된 종목 탭의 기록만 삭제 -->
+                <Button
+                    android:id="@+id/btnDeleteMyCategoryRecords"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/color_danger"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:text="이 종목 삭제" />
+
+                <!-- 종목 구분 없이 내 기록 전부 삭제 -->
+                <Button
+                    android:id="@+id/btnDeleteMyAllRecords"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/color_danger"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:text="전체 삭제" />
+
+            </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -56,7 +85,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:textSize="13sp"
-        android:textColor="#666666"/>
+        android:textColor="@color/text_secondary"/>
 
     <!-- 개인 최고 기록 (선택된 종목 기준) -->
     <TextView
@@ -67,7 +96,7 @@
         android:layout_marginBottom="8dp"
         android:textSize="13sp"
         android:textStyle="bold"
-        android:textColor="#1A237E"/>
+        android:textColor="@color/brand_primary"/>
 
     <!-- 기록 목록 -->
     <androidx.recyclerview.widget.RecyclerView

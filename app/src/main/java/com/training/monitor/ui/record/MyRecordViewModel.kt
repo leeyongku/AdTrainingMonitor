@@ -66,6 +66,42 @@ class MyRecordViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    /** 내 측정 기록을 전부 삭제하고, 성공 시 목록을 새로고침한다. */
+    fun deleteAllMyRecords() {
+        val api = RetrofitClient.create(getApplication())
+        viewModelScope.launch {
+            try {
+                val response = api.deleteMyRecords()
+                if (response.isSuccessful) {
+                    _toastMessage.value = "전체 기록을 삭제했습니다."
+                    loadRecords()
+                } else {
+                    _toastMessage.value = "전체 삭제 실패"
+                }
+            } catch (e: Exception) {
+                _toastMessage.value = "서버 연결 실패: ${e.message}"
+            }
+        }
+    }
+
+    /** 내 측정 기록 중 특정 종목만 전부 삭제하고, 성공 시 목록을 새로고침한다. */
+    fun deleteMyRecordsByCategory(categoryId: Long) {
+        val api = RetrofitClient.create(getApplication())
+        viewModelScope.launch {
+            try {
+                val response = api.deleteMyRecordsByCategory(categoryId)
+                if (response.isSuccessful) {
+                    _toastMessage.value = "선택한 종목의 기록을 삭제했습니다."
+                    loadRecords()
+                } else {
+                    _toastMessage.value = "종목 기록 삭제 실패"
+                }
+            } catch (e: Exception) {
+                _toastMessage.value = "서버 연결 실패: ${e.message}"
+            }
+        }
+    }
+
     /** Fragment가 메시지를 Toast로 보여준 뒤 호출한다. */
     fun onToastMessageShown() {
         _toastMessage.value = null

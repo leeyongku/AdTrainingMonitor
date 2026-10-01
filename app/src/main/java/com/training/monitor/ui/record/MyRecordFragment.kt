@@ -8,12 +8,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.tabs.TabLayout
 import com.training.monitor.data.model.RecordDto
 import com.training.monitor.data.model.TrendPoint
@@ -81,6 +85,30 @@ class MyRecordFragment : Fragment() {
 
         viewModel.loadRecords()
         updateForSelectedCategory()   // 탭 0번(3km 달리기) 기준으로 최초 추이 조회까지 트리거
+
+        binding.btnDeleteMyCategoryRecords.setOnClickListener { showDeleteCategoryDialog() }
+        binding.btnDeleteMyAllRecords.setOnClickListener { showDeleteAllDialog() }
+    }
+
+    /** 현재 선택된 종목 탭의 기록만 삭제하기 전, 되돌릴 수 없는 작업이므로 확인 다이얼로그를 띄운다. */
+    private fun showDeleteCategoryDialog() {
+        val category = categories.getOrNull(binding.tabCategory.selectedTabPosition) ?: categories[0]
+        AlertDialog.Builder(requireContext())
+            .setTitle("종목 기록 삭제")
+            .setMessage("'${category.categoryName}' 기록을 전부 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")
+            .setPositiveButton("삭제") { _, _ -> viewModel.deleteMyRecordsByCategory(category.id) }
+            .setNegativeButton("취소", null)
+            .show()
+    }
+
+    /** 종목 구분 없이 내 기록 전부를 삭제하기 전, 되돌릴 수 없는 작업이므로 확인 다이얼로그를 띄운다. */
+    private fun showDeleteAllDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("전체 기록 삭제")
+            .setMessage("내 모든 측정 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")
+            .setPositiveButton("전체 삭제") { _, _ -> viewModel.deleteAllMyRecords() }
+            .setNegativeButton("취소", null)
+            .show()
     }
 
     /**
@@ -113,12 +141,23 @@ class MyRecordFragment : Fragment() {
         return "최고 기록: ${RecordAdapter.formatValue(best.value)}${best.unit}$gradeSuffix"
     }
 
-    /** 추이 데이터 포인트 목록을 MPAndroidChart의 Entry로 변환해 꺾은선 그래프를 그린다. */
+    /**
+     * 추이 데이터 포인트 목록을 MPAndroidChart의 Entry로 변환해 꺾은선 그래프를 그린다.
+     * x축에는 측정일을, 각 점 위의 값 라벨에는 측정값(+단위)을 표시한다.
+     */
     private fun drawTrendChart(points: List<TrendPoint>) {
-        // x축은 측정 순서(인덱스), y축은 측정값 — 실제 날짜 라벨은 별도 포맷터 없이 순번만 사용
+        // x축은 측정 순서(인덱스)를 그대로 쓰고, 실제 측정일 문자열은 x축 포맷터가 라벨로 바꿔치기한다.
         val entries = points.mapIndexed { index, point ->
             Entry(index.toFloat(), point.value.toFloat())
         }
+
+        // 값 라벨에 단위(회/초)를 같이 보여주기 위해, 현재 선택된 종목의 단위를 기록 목록에서 찾아온다.
+        val category = categories.getOrNull(binding.tabCategory.selectedTabPosition) ?: categories[0]
+        //val unit = (viewModel.records.value ?: emptyList()).firstOrNull { it.categoryName == category.categoryName }?.unit ?: ""
+
+        // orEmpty() 함수는 records.value 값이 있거나 Null 이면 빈문자열("")을 반환하고, null 이 아니면 자기 자신을 반환한다.
+        // find 연산의 결과과 null 이 아닌 경우에만 우측의 프로퍼티(unit)에 접근한다.
+        val unit = viewModel.records.value.orEmpty().find { it.categoryName == category.categoryName } ?.unit.orEmpty()
 
         val dataSet = LineDataSet(entries, "기록 추이").apply {
             color = Color.BLUE
@@ -126,11 +165,34 @@ class MyRecordFragment : Fragment() {
             lineWidth = 2f
             circleRadius = 4f
             setDrawValues(true)
+            // 점 위에 뜨는 값 라벨 — 측정값에 단위를 붙여서 보여준다 (예: "20초", "65회").
+            valueFormatter = object : ValueFormatter() {
+                override fun getPointLabel(entry: Entry?): String {
+                    val value = entry?.y?.toDouble() ?: return ""
+                    return "${RecordAdapter.formatValue(value)}$unit"
+                }
+            }
         }
 
         binding.lineChart.apply {
             data = LineData(dataSet)
             description.isEnabled = false
+
+            // x축 라벨을 "yyyy-MM-dd" 측정일에서 뒤 5자(MM-dd)만 잘라 표시한다.
+            xAxis.apply {
+                position = XAxis.XAxisPosition.BOTTOM
+                granularity = 1f
+                valueFormatter = IndexAxisValueFormatter(points.map { it.measuredAt.takeLast(5) })
+            }
+
+            // y축(좌/우) 눈금 라벨에도 단위를 붙인다 (예: "350초", "65회").
+            val yAxisFormatter = object : ValueFormatter() {
+                override fun getFormattedValue(value: Float): String =
+                    "${RecordAdapter.formatValue(value.toDouble())}$unit"
+            }
+            axisLeft.valueFormatter = yAxisFormatter
+            axisRight.valueFormatter = yAxisFormatter
+
             animateX(500)
             invalidate()   // 데이터 변경 후 차트를 강제로 다시 그림
         }

@@ -41,14 +41,14 @@
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
                 android:textStyle="bold"
-                android:textColor="#333333"/>
+                android:textColor="@color/text_primary"/>
 
             <TextView
                 android:id="@+id/tvDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
-                android:textColor="#999999"/>
+                android:textColor="@color/text_tertiary"/>
         </LinearLayout>
 
         <!-- 기록값 -->
@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="#1A237E"/>
+            android:textColor="@color/brand_primary"/>
 
         <!-- 사진 보기 아이콘 (사진이 있는 기록만 표시) -->
         <ImageView
@@ -69,6 +69,16 @@
             android:src="@android:drawable/ic_menu_camera"
             android:visibility="gone"
             android:contentDescription="사진 보기"/>
+
+        <!-- 기록 삭제 아이콘 (관리자가 대원별 기록 화면에서 볼 때만 표시 — RecordAdapter.onDeleteClick이 있을 때만 보임) -->
+        <ImageView
+            android:id="@+id/ivDeleteRecord"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="12dp"
+            android:src="@android:drawable/ic_menu_delete"
+            android:visibility="gone"
+            android:contentDescription="기록 삭제"/>
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

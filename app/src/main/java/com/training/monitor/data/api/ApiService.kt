@@ -62,6 +62,10 @@ interface ApiService {
     @DELETE("api/members/{id}")
     suspend fun deactivateMember(@Path("id") id: Long): Response<Unit>
 
+    /** 대원의 이름/계급/소속 부대/얼굴 사진을 수정한다. 군번/비밀번호는 이 API로 바꿀 수 없다. */
+    @PATCH("api/members/{id}")
+    suspend fun updateMember(@Path("id") id: Long, @Body req: UpdateMemberRequest): Response<Unit>
+
     /** 대원의 비밀번호를 관리자가 새 값으로 재설정한다. */
     @PATCH("api/members/{id}/password")
     suspend fun resetPassword(@Path("id") id: Long, @Body req: ResetPasswordRequest): Response<Unit>
@@ -105,6 +109,14 @@ interface ApiService {
     @GET("api/records/my")
     suspend fun myRecords(): Response<List<RecordDto>>
 
+    /** 로그인한 본인의 측정 기록을 전부 삭제한다. 대상이 항상 본인으로 고정되므로 ADMIN 권한이 필요 없다. */
+    @DELETE("api/records/my")
+    suspend fun deleteMyRecords(): Response<Map<String, Any>>
+
+    /** 로그인한 본인의 특정 종목 측정 기록을 전부 삭제한다. */
+    @DELETE("api/records/my/category/{categoryId}")
+    suspend fun deleteMyRecordsByCategory(@Path("categoryId") categoryId: Long): Response<Map<String, Any>>
+
     /** 특정 대원의 측정 기록을 조회한다 (관리자가 대원 상세를 볼 때 사용). */
     @GET("api/records/user/{userId}")
     suspend fun userRecords(@Path("userId") userId: Long): Response<List<RecordDto>>
@@ -116,6 +128,14 @@ interface ApiService {
     /** 특정 기록에 첨부된 사진 원본을 내려받는다. 본인 기록이거나 관리자만 조회 가능(서버가 검증). */
     @GET("api/records/{id}/photo")
     suspend fun recordPhoto(@Path("id") id: Long): Response<ResponseBody>
+
+    /** 측정 기록 하나를 삭제한다 (관리자 전용). */
+    @DELETE("api/records/{id}")
+    suspend fun deleteRecord(@Path("id") id: Long): Response<Unit>
+
+    /** 특정 대원의 측정 기록을 전부 삭제한다 (관리자 전용). */
+    @DELETE("api/records/user/{userId}")
+    suspend fun deleteAllUserRecords(@Path("userId") userId: Long): Response<Map<String, Any>>
 
     /**
      * 특정 종목의 측정값 추이(시계열)를 조회한다. 그래프 그리기용.

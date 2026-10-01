@@ -3,6 +3,10 @@
 package com.training.monitor.ui.member
 
 import android.app.Application
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Base64
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,7 +16,11 @@ import com.training.monitor.data.model.CreateMemberRequest
 import com.training.monitor.data.model.MemberDto
 import com.training.monitor.data.model.ResetPasswordRequest
 import com.training.monitor.data.model.UnitDto
+import com.training.monitor.data.model.UpdateMemberRequest
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 
 /**
  * [MemberListFragment]의 ViewModel.
@@ -98,12 +106,17 @@ class MemberListViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    /** 서버에 신규 대원 등록을 요청하고, 성공 시 목록을 새로고침한다. */
-    fun createMember(req: CreateMemberRequest) {
+    /**
+     * 서버에 신규 대원 등록을 요청하고, 성공 시 목록을 새로고침한다.
+     * [photoUri]가 있으면 축소/압축/Base64 인코딩한 뒤 요청에 실어 보낸다. 인코딩은 파일 디코드·압축이
+     * 포함된 무거운 작업이라 [Dispatchers.IO]에서 실행해 메인 스레드가 멈추지 않게 한다.
+     */
+    fun createMember(req: CreateMemberRequest, photoUri: Uri? = null) {
         val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
-                val response = api.createMember(req)
+                val photoBase64 = photoUri?.let { withContext(Dispatchers.IO) { encodePhotoBase64(it) } }
+                val response = api.createMember(req.copy(photoBase64 = photoBase64))
                 if (response.isSuccessful) {
                     _toastMessage.value = "${req.name} 대원을 등록했습니다."
                     loadMembers()
@@ -111,6 +124,57 @@ class MemberListViewModel(application: Application) : AndroidViewModel(applicati
                     _toastMessage.value = "이미 등록된 군번입니다."
                 } else {
                     _toastMessage.value = "대원 등록 실패"
+                }
+            } catch (e: Exception) {
+                _toastMessage.value = "서버 연결 실패: ${e.message}"
+            }
+        }
+    }
+
+    /**
+     * 카메라 촬영(파일 Uri) 또는 갤러리 선택(콘텐츠 Uri) 결과를 긴 변 480px 이하로 축소하고
+     * JPEG 품질 75로 압축해 Base64로 인코딩한다. 목록 아이콘 표시용이라 기록 사진(1280px)보다 작게 줄인다.
+     */
+    private fun encodePhotoBase64(uri: Uri): String? {
+        val resolver = getApplication<Application>().contentResolver
+
+        // inJustDecodeBounds=true 모드에서는 decodeStream이 항상 null을 반환하므로(치수만 bounds에 채움),
+        // 반환값이 아니라 bounds.outWidth/outHeight로 디코딩 성공 여부를 판단한다.
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+
+        var sampleSize = 1
+        while (bounds.outWidth / sampleSize > 480 || bounds.outHeight / sampleSize > 480) {
+            sampleSize *= 2
+        }
+
+        val bitmap = resolver.openInputStream(uri)?.use {
+            BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = sampleSize })
+        } ?: return null
+
+        val output = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 75, output)
+        return Base64.encodeToString(output.toByteArray(), Base64.NO_WRAP)
+    }
+
+    /**
+     * 서버에 기존 대원 정보(이름/계급/소속 부대/얼굴 사진) 수정을 요청하고, 성공 시 목록을 새로고침한다.
+     * [photoUri]가 있으면 새 사진으로 교체하고, [removePhoto]가 true면 기존 사진을 지운다
+     * (둘 다 지정된 경우 삭제가 우선 적용됨 — [encodePhotoBase64]는 [removePhoto]가 true면 호출하지 않는다).
+     */
+    fun updateMember(memberId: Long, req: UpdateMemberRequest, photoUri: Uri? = null, removePhoto: Boolean = false) {
+        val api = RetrofitClient.create(getApplication())
+        viewModelScope.launch {
+            try {
+                val photoBase64 = if (removePhoto) null
+                    else photoUri?.let { withContext(Dispatchers.IO) { encodePhotoBase64(it) } }
+                val response = api.updateMember(memberId, req.copy(photoBase64 = photoBase64, removePhoto = removePhoto))
+                if (response.isSuccessful) {
+                    _toastMessage.value = "${req.name} 정보를 수정했습니다."
+                    loadMembers()
+                } else {
+                    _toastMessage.value = "대원 정보 수정 실패"
                 }
             } catch (e: Exception) {
                 _toastMessage.value = "서버 연결 실패: ${e.message}"

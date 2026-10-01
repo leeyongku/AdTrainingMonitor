@@ -3,8 +3,10 @@
 package com.training.monitor.data.api
 
 import android.content.Context
+import android.content.Intent
 import com.training.monitor.BuildConfig
 import com.training.monitor.data.local.TokenManager
+import com.training.monitor.ui.login.LoginActivity
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -38,12 +40,13 @@ object RetrofitClient {
 
             var response = chain.proceed(request)
 
-            // 401 → refresh token으로 자동 갱신
-            if (response.code == 401 && tokenManager.refreshToken != null) {
+            // 401 → refresh token으로 자동 갱신을 시도한다. refresh token 자체가 없으면
+            // (에초에 로그인 안 된 상태 등) 재발급 시도 없이 바로 세션 만료로 취급한다.
+            if (response.code == 401) {
                 response.close()
                 // OkHttp 인터셉터는 동기 컨텍스트이므로 suspend 함수인 refreshAccessToken을
                 // runBlocking으로 감싸 동기적으로 대기한다.
-                val newToken = runBlocking { refreshAccessToken(tokenManager) }
+                val newToken = tokenManager.refreshToken?.let { runBlocking { refreshAccessToken(tokenManager) } }
                 if (newToken != null) {
                     tokenManager.accessToken = newToken
                     val retryRequest = chain.request().newBuilder()
@@ -51,7 +54,16 @@ object RetrofitClient {
                         .build()
                     response = chain.proceed(retryRequest)
                 } else {
-                    tokenManager.clear()  // refresh도 만료 → 로그아웃
+                    // refresh token도 없거나 만료됨 → 세션이 완전히 끊긴 상태.
+                    // 로컬 토큰을 지우고, 지금 어느 화면에 있든 로그인 화면으로 강제 이동시킨다.
+                    // FLAG_ACTIVITY_NEW_TASK: Application Context에서 액티비티를 띄우려면 필수.
+                    // FLAG_ACTIVITY_CLEAR_TASK: 기존에 쌓여있던 화면 스택을 전부 지워서, 로그인
+                    // 화면에서 뒤로가기를 눌러도 만료된 세션의 화면으로 못 돌아가게 한다.
+                    tokenManager.clear()
+                    context.startActivity(
+                        Intent(context, LoginActivity::class.java)
+                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    )
                 }
             }
             response

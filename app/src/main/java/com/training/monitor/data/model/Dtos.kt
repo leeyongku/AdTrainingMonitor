@@ -116,7 +116,9 @@ data class MemberDto(
     // 계급. 아직 부여되지 않았거나 값이 없는 대원이 있을 수 있어 nullable.
     val rank: String?,
     // 소속 부대명. 서버가 Unit 테이블을 조인해서 이름만 내려준다 (unit_id 자체는 내려주지 않음).
-    @SerializedName("unit_name") val unitName: String?
+    @SerializedName("unit_name") val unitName: String?,
+    // 얼굴 사진 (Base64, JPEG). 등록 안 했으면 null — 목록 아이콘에 표시할 작은 이미지라 바로 내려받는다.
+    @SerializedName("photo_base64") val photoBase64: String?
 )
 
 /**
@@ -129,9 +131,25 @@ data class CreateMemberRequest(
     val name: String,
     // 최초 비밀번호. 서버가 BCrypt로 해시해서 저장하고 평문은 남기지 않는다.
     val password: String,
-    val rank: String?,
-    // 어느 부대 소속으로 등록할지. null이면 서버 로직에 따라 관리자 본인 부대로 처리될 수 있다.
-    @SerializedName("unit_id") val unitId: Long?
+    val rank: String,
+    // 어느 부대 소속으로 등록할지. 계급과 마찬가지로 필수.
+    @SerializedName("unit_id") val unitId: Long,
+    // 얼굴 사진 (Base64, JPEG, 선택). MemberListViewModel.createMember()가 인코딩해서 채워 넣는다.
+    @SerializedName("photo_base64") val photoBase64: String? = null
+)
+
+/**
+ * 기존 대원 정보 수정(PATCH /api/members/{id}) 요청 바디. 군번/비밀번호는 이 요청으로
+ * 바꿀 수 없다 (군번은 로그인 식별자, 비밀번호는 [ResetPasswordRequest]가 별도로 담당).
+ */
+data class UpdateMemberRequest(
+    val name: String,
+    val rank: String,
+    @SerializedName("unit_id") val unitId: Long,
+    // 새로 촬영/선택한 사진 (Base64, JPEG). null이면 "사진을 바꾸지 않음"을 의미한다.
+    @SerializedName("photo_base64") val photoBase64: String? = null,
+    // true면 기존 사진을 지운다 (photoBase64와 동시에 true일 수 없다 — 삭제가 우선 적용됨).
+    @SerializedName("remove_photo") val removePhoto: Boolean = false
 )
 
 /** 대원 비밀번호 재설정(PATCH /api/members/{id}/password) 요청 바디. CreateMemberRequest와 마찬가지로 관리자 권한이 필요하다. */
