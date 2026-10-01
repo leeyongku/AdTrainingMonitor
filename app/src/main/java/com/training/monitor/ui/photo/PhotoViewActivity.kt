@@ -15,9 +15,11 @@ import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import com.training.monitor.data.api.RetrofitClient
+import com.training.monitor.data.api.ApiService
 import com.training.monitor.databinding.ActivityPhotoViewBinding
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * 사진을 전체화면으로 보여주는 화면. 진입 방식이 두 가지라 [onCreate]에서 인텐트에
@@ -32,7 +34,10 @@ import kotlinx.coroutines.launch
  *
  * 두 경우 모두 같은 레이아웃(`activity_photo_view.xml`)과 같은 닫기 버튼을 공유한다.
  */
+@AndroidEntryPoint
 class PhotoViewActivity : AppCompatActivity() {
+
+    @Inject lateinit var apiService: ApiService
 
     private lateinit var binding: ActivityPhotoViewBinding
 
@@ -108,9 +113,8 @@ class PhotoViewActivity : AppCompatActivity() {
         // 무효화된 뒤 접근하는 상황)를 방지해준다.
         lifecycleScope.launch {
             val bitmap = try {
-                // RetrofitClient.create(context): JWT 토큰 자동 첨부 + 401 자동 갱신이
-                // 내장된 ApiService 구현체를 매번 새로 만들어 쓴다 (다른 화면들과 동일한 패턴).
-                val response = RetrofitClient.create(this@PhotoViewActivity).recordPhoto(recordId)
+                // apiService: Hilt가 @Inject lateinit var로 주입한 싱글톤(NetworkModule 제공).
+                val response = apiService.recordPhoto(recordId)
                 // HTTP 자체가 실패(403 권한 없음, 404 사진 없음 등)했으면 바이트를 읽지 않는다.
                 val bytes = if (response.isSuccessful) response.body()?.bytes() else null
                 // 바이트가 있어도 JPEG로서 유효하지 않으면 decodeByteArray가 null을 반환한다.
