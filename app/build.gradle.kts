@@ -1,6 +1,18 @@
+    import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+}
+
+// 릴리스 서명 정보. keyStore/keystore.properties(git에는 올라가지 않음, .gitignore의 /keyStore/ 참고)에서
+// storeFile/storePassword/keyAlias/keyPassword를 읽어온다. 파일이 없으면(=이 저장소를 새로 받은 경우)
+// 릴리스 빌드에서만 실패하고 디버그 빌드는 영향받지 않는다.
+val keystorePropertiesFile = rootProject.file("keyStore/keystore.properties")
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) {
+        keystorePropertiesFile.inputStream().use { load(it) }
+    }
 }
 
 android {
@@ -16,8 +28,11 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // 서버 주소 (개발: 에뮬레이터는 10.0.2.2, 실기기는 실제 IP)
-        buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:5133/\"")
+        // 디버그 빌드 기본 서버 주소. adb reverse tcp:5133 tcp:5133로 기기의 localhost를 PC의
+        // 5133 포트로 포워딩하므로, 에뮬레이터/실기기 모두 USB로 연결돼 있으면 이 주소로 동작한다.
+        // 릴리스 빌드는 USB 연결 없이 Wi-Fi로 독립 동작해야 하므로 아래 buildTypes.release에서
+        // PC의 실제 LAN IP로 덮어쓴다.
+        buildConfigField("String", "BASE_URL", "\"http://127.0.0.1:5133/\"")
     }
 
     buildFeatures {
@@ -30,6 +45,33 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                storeFile = rootProject.file("keyStore/${keystoreProperties["storeFile"]}")
+                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+            }
+        }
+    }
+
+    // 사내 테스트용 APK라 릴리스 빌드 시 자동으로 도는 Lint 검사(lintVitalRelease)를 끈다.
+    // (그대로 두면 Lint가 쓰는 외부 도구를 매번 인터넷에서 받아오다 실패할 수 있다.)
+    lint {
+        checkReleaseBuilds = false
+    }
+
+        buildTypes {
+        release {
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
+            // 폰이 PC와 같은 Wi-Fi(같은 공유기)에 있을 때 독립적으로 접속할 PC의 LAN IP.
+            // 네트워크가 바뀌면(PC의 IP가 바뀌면) 이 값도 같이 바꿔야 한다.
+            buildConfigField("String", "BASE_URL", "\"http://192.168.25.81:5133/\"")
+        }
     }
 }
 
