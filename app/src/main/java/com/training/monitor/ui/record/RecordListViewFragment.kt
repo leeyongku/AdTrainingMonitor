@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.training.monitor.data.model.RecordDto
 import com.training.monitor.databinding.FragmentRecordListViewBinding
 import com.training.monitor.ui.photo.PhotoViewActivity
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * 관리자 전용 화면: [com.training.monitor.ui.member.MemberListFragment]에서 대원의
@@ -24,6 +25,7 @@ import com.training.monitor.ui.photo.PhotoViewActivity
  * 보여준다. [RecordAdapter]를 [MyRecordFragment]와 그대로 공유하되, 여기서는
  * [RecordAdapter.onDeleteClick]을 넘겨줘서 항목별 삭제 아이콘이 보이게 한다.
  */
+@AndroidEntryPoint
 class RecordListViewFragment : Fragment() {
 
     private var _binding: FragmentRecordListViewBinding? = null
