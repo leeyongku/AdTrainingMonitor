@@ -10,17 +10,19 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.training.monitor.data.api.RetrofitClient
+import com.training.monitor.data.api.ApiService
 import com.training.monitor.data.model.GradeCriteriaDto
 import com.training.monitor.data.model.MemberDto
 import com.training.monitor.data.model.RecordRequest
 import com.training.monitor.data.model.SessionDto
 import com.training.monitor.data.model.SessionRequest
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
+import javax.inject.Inject
 
 /**
  * [RecordInputFragment]의 ViewModel.
@@ -30,7 +32,11 @@ import java.io.File
  * 저장 요청, 그리고 "등급 미리보기 계산"처럼 View를 몰라도 되는 순수 판정 로직까지 맡고,
  * 스피너 어댑터 구성이나 텍스트 색상 같은 실제 화면 렌더링만 Fragment에 남긴다.
  */
-class RecordInputViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class RecordInputViewModel @Inject constructor(
+    application: Application,
+    private val apiService: ApiService
+) : AndroidViewModel(application) {
 
     private val _sessions = MutableLiveData<List<SessionDto>>(emptyList())
     val sessions: LiveData<List<SessionDto>> = _sessions
@@ -53,10 +59,9 @@ class RecordInputViewModel(application: Application) : AndroidViewModel(applicat
 
     /** 측정 세션 목록을 불러와 [sessions]를 갱신한다. */
     fun loadSessions() {
-        val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
-                val response = api.getSessions()
+                val response = apiService.getSessions()
                 if (response.isSuccessful) {
                     _sessions.value = response.body() ?: emptyList()
                 }
@@ -68,10 +73,9 @@ class RecordInputViewModel(application: Application) : AndroidViewModel(applicat
 
     /** 소속 부대 대원 목록을 불러와 [members]를 갱신한다. */
     fun loadMembers() {
-        val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
-                val response = api.getMembers()
+                val response = apiService.getMembers()
                 if (response.isSuccessful) {
                     _members.value = response.body() ?: emptyList()
                 }
@@ -87,10 +91,9 @@ class RecordInputViewModel(application: Application) : AndroidViewModel(applicat
      */
     fun createSession(measuredAt: String, location: String?, note: String?) {
         val req = SessionRequest(unitId = null, measuredAt = measuredAt, location = location, note = note)
-        val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
-                val response = api.createSession(req)
+                val response = apiService.createSession(req)
                 if (response.isSuccessful) {
                     _toastMessage.value = "측정 세션을 추가했습니다."
                     loadSessions()
@@ -108,10 +111,9 @@ class RecordInputViewModel(application: Application) : AndroidViewModel(applicat
      * [gradeCriteria]를 갱신한다. 종목이나 대원 선택이 바뀔 때마다 Fragment가 호출한다.
      */
     fun loadGradeCriteria(categoryId: Long, userId: Long) {
-        val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
-                val response = api.gradeCriteria(categoryId, userId)
+                val response = apiService.gradeCriteria(categoryId, userId)
                 _gradeCriteria.value = if (response.isSuccessful) response.body() ?: emptyList() else emptyList()
             } catch (e: Exception) {
                 _gradeCriteria.value = emptyList()
@@ -142,12 +144,11 @@ class RecordInputViewModel(application: Application) : AndroidViewModel(applicat
      * [Dispatchers.IO]에서 실행해 메인 스레드가 멈추지 않게 한다.
      */
     fun saveRecord(sessionId: Long, userId: Long, categoryId: Long, value: Double, note: String?, photoFile: File? = null) {
-        val api = RetrofitClient.create(getApplication())
         viewModelScope.launch {
             try {
                 val photoBase64 = photoFile?.let { withContext(Dispatchers.IO) { encodePhotoBase64(it) } }
                 val req = RecordRequest(sessionId, userId, categoryId, value, note, photoBase64)
-                val response = api.createRecord(req)
+                val response = apiService.createRecord(req)
                 if (response.isSuccessful) {
                     // 서버가 산출한 최종 등급을 응답 바디에서 꺼내 안내 메시지에 표시
                     val grade = response.body()?.get("grade")

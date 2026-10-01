@@ -22,6 +22,7 @@ import com.training.monitor.R
 import com.training.monitor.databinding.DialogCreateSessionBinding
 import com.training.monitor.databinding.FragmentRecordInputBinding
 import com.training.monitor.ui.photo.PhotoViewActivity
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -36,6 +37,7 @@ import java.util.Calendar
  * 목록 조회, 기록 저장, 등급 미리보기 계산은 [RecordInputViewModel]이 담당하고, 여기서는 그
  * 결과를 스피너/텍스트로 그리거나 스피너 선택값을 읽어 ViewModel에 넘기는 일만 한다.
  */
+@AndroidEntryPoint
 class RecordInputFragment : Fragment() {
 
     private var _binding: FragmentRecordInputBinding? = null
