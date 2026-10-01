@@ -5,16 +5,19 @@ package com.training.monitor.data.local
 import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * access/refresh 토큰과 로그인 역할(role)을 [EncryptedSharedPreferences]에 저장/조회하는 클래스.
  *
  * 일반 SharedPreferences 대신 암호화 저장소를 쓰는 이유는 JWT가 탈취되면 계정이 그대로
  * 도용될 수 있는 민감 정보이기 때문이다 (AndroidKeyStore 기반 AES256-GCM으로 암호화됨).
- * 호출 비용이 크지 않으므로 매 API 호출([com.training.monitor.data.api.RetrofitClient])마다
- * 새 인스턴스를 생성해서 사용해도 무방하다.
+ * Hilt가 앱 전체에서 공유하는 싱글톤 인스턴스 하나만 생성해 주입한다.
  */
-class TokenManager(context: Context) {
+@Singleton
+class TokenManager @Inject constructor(@ApplicationContext context: Context) {
 
     // AndroidKeyStore에 보관되는 마스터 키로 파일 전체를 암호화하는 SharedPreferences.
     private val prefs = EncryptedSharedPreferences.create(
