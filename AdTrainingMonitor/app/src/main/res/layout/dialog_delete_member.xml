@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 대원 삭제 바텀시트 - "숨기기"/"완전 삭제" 중 하나를 선택하는 다이얼로그 콘텐츠 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="12dp">
+
+    <TextView
+        android:id="@+id/tvDeleteMemberTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/background_badge"/>
+
+    <!-- 숨기기 -->
+    <LinearLayout
+        android:id="@+id/rowHideMember"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="20dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="🙈"
+            android:textSize="22sp"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="숨기기"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="제대/전역 처리 — 목록에서만 제외, 기록은 유지됩니다"
+                android:textSize="13sp"
+                android:textColor="@color/text_tertiary"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 완전 삭제 -->
+    <LinearLayout
+        android:id="@+id/rowDeletePermanently"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="20dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="🗑"
+            android:textSize="22sp"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="완전 삭제"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/color_danger"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DB에서 영구 삭제 — 측정 기록도 함께 삭제되며 되돌릴 수 없습니다"
+                android:textSize="13sp"
+                android:textColor="@color/text_tertiary"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

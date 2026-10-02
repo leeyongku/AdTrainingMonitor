@@ -21,10 +21,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.training.monitor.R
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.training.monitor.data.model.CreateMemberRequest
 import com.training.monitor.data.model.MemberDto
 import com.training.monitor.data.model.UpdateMemberRequest
 import com.training.monitor.databinding.DialogAddMemberBinding
+import com.training.monitor.databinding.DialogDeleteMemberBinding
 import com.training.monitor.databinding.DialogEditMemberBinding
 import com.training.monitor.databinding.FragmentMemberListBinding
 import androidx.core.os.bundleOf
@@ -125,6 +127,8 @@ class MemberListFragment : Fragment() {
         adapter.onResetPasswordClick = { member -> showResetPasswordDialog(member) }
         // 연필 모양 아이콘을 탭하면 이름/계급/부대/사진 수정 다이얼로그를 띄운다.
         adapter.onEditClick = { member -> showEditMemberDialog(member) }
+        // 휴지통 모양 아이콘을 탭하면 숨기기/완전 삭제 중 하나를 고르는 다이얼로그를 띄운다.
+        adapter.onDeleteClick = { member -> showDeleteMemberChoiceDialog(member) }
         binding.fabAddMember.setOnClickListener { showAddMemberDialog() }
 
         // 검색 필터 — 입력할 때마다 서버 재호출 없이 viewModel.members의 최신값을 이름/군번 기준으로 필터링
@@ -313,6 +317,49 @@ class MemberListFragment : Fragment() {
                     viewModel.resetPassword(member, newPassword)
                 }
             }
+            .setNegativeButton("취소", null)
+            .show()
+    }
+
+    /**
+     * 휴지통 아이콘 탭 시 "숨기기"(비활성화) 또는 "완전 삭제" 중 하나를 고르게 하는 바텀시트를 띄운다.
+     * 각 항목을 고르면 바텀시트를 닫고 해당 확인 다이얼로그([showDeactivateConfirmDialog] /
+     * [showDeletePermanentlyConfirmDialog])로 넘어간다.
+     */
+    private fun showDeleteMemberChoiceDialog(member: MemberDto) {
+        val sheetBinding = DialogDeleteMemberBinding.inflate(layoutInflater)
+        val bottomSheet = BottomSheetDialog(requireContext())
+        bottomSheet.setContentView(sheetBinding.root)
+
+        sheetBinding.tvDeleteMemberTitle.text = "${member.name} 대원 삭제"
+        sheetBinding.rowHideMember.setOnClickListener {
+            bottomSheet.dismiss()
+            showDeactivateConfirmDialog(member)
+        }
+        sheetBinding.rowDeletePermanently.setOnClickListener {
+            bottomSheet.dismiss()
+            showDeletePermanentlyConfirmDialog(member)
+        }
+
+        bottomSheet.show()
+    }
+
+    /** 대원 숨기기(비활성화) 전, 확인 다이얼로그를 띄운다. */
+    private fun showDeactivateConfirmDialog(member: MemberDto) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("대원 숨기기")
+            .setMessage("'${member.name}' 대원을 목록에서 숨기시겠습니까? (제대/전역 처리, 측정 기록은 유지됩니다.)")
+            .setPositiveButton("숨기기") { _, _ -> viewModel.deactivateMember(member) }
+            .setNegativeButton("취소", null)
+            .show()
+    }
+
+    /** 대원 완전 삭제 전, 되돌릴 수 없는 작업이므로 강한 경고와 함께 확인 다이얼로그를 띄운다. */
+    private fun showDeletePermanentlyConfirmDialog(member: MemberDto) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("대원 완전 삭제")
+            .setMessage("'${member.name}' 대원과 측정 기록을 DB에서 완전히 삭제하시겠습니까?\n이 작업은 절대 되돌릴 수 없습니다.")
+            .setPositiveButton("완전 삭제") { _, _ -> viewModel.deletePermanently(member) }
             .setNegativeButton("취소", null)
             .show()
     }

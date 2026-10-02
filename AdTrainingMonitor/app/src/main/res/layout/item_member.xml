@@ -95,5 +95,15 @@
             android:src="@android:drawable/ic_lock_lock"
             android:contentDescription="비밀번호 변경"/>
 
+        <!-- 대원 숨기기/완전 삭제 -->
+        <ImageView
+            android:id="@+id/ivDeleteMember"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="8dp"
+            android:padding="2dp"
+            android:src="@android:drawable/ic_menu_delete"
+            android:contentDescription="대원 삭제"/>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

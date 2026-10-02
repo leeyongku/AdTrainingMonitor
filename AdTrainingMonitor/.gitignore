@@ -30,3 +30,7 @@ local.properties
 # 세션 중 생성된 디버그 로그/스크래치 파일 (uiautomator dump 등, 루트에만 적용)
 *.log
 /*.xml
+
+# 수동 QA용 스크래치 파일, 브레인스토밍 비주얼 컴패니언 목업 세션
+/.qa_tmp/
+/.superpowers/

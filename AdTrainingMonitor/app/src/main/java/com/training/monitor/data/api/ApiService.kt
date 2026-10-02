@@ -62,6 +62,10 @@ interface ApiService {
     @DELETE("api/members/{id}")
     suspend fun deactivateMember(@Path("id") id: Long): Response<Unit>
 
+    /** 대원을 DB에서 완전히 삭제한다 (복구 불가능, 그 대원의 측정 기록도 함께 삭제됨). */
+    @DELETE("api/members/{id}/permanent")
+    suspend fun deleteMemberPermanently(@Path("id") id: Long): Response<Unit>
+
     /** 대원의 이름/계급/소속 부대/얼굴 사진을 수정한다. 군번/비밀번호는 이 API로 바꿀 수 없다. */
     @PATCH("api/members/{id}")
     suspend fun updateMember(@Path("id") id: Long, @Body req: UpdateMemberRequest): Response<Unit>
