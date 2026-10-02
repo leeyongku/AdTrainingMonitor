@@ -43,6 +43,10 @@ interface ApiService {
     @PATCH("api/auth/password")
     suspend fun changePassword(@Body req: ChangePasswordRequest): Response<Unit>
 
+    /** 로그인한 본인의 이름/군번/계급을 조회한다. 역할 구분 없이 호출할 수 있다. */
+    @GET("api/auth/me")
+    suspend fun getMyInfo(): Response<MyInfoDto>
+
     // =============================================
     // 대원 관리 (관리자)
     // =============================================
@@ -140,6 +144,13 @@ interface ApiService {
     /** 특정 대원의 측정 기록을 전부 삭제한다 (관리자 전용). */
     @DELETE("api/records/user/{userId}")
     suspend fun deleteAllUserRecords(@Path("userId") userId: Long): Response<Map<String, Any>>
+
+    /** 특정 대원의 특정 종목 측정 기록을 전부 삭제한다 (관리자 전용). */
+    @DELETE("api/records/user/{userId}/category/{categoryId}")
+    suspend fun deleteUserRecordsByCategory(
+        @Path("userId") userId: Long,
+        @Path("categoryId") categoryId: Long
+    ): Response<Map<String, Any>>
 
     /**
      * 특정 종목의 측정값 추이(시계열)를 조회한다. 그래프 그리기용.

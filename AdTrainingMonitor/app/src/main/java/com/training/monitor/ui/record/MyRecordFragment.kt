@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -26,9 +27,14 @@ import com.training.monitor.ui.photo.PhotoViewActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
- * 대원(MEMBER 역할) 전용 화면: [tabCategory]로 종목을 고르면, 그 종목 기준으로
- * 추이 꺾은선 그래프(전체 기간) + 개인 최고 기록 + 측정 기록 목록을 함께 보여준다.
- * MPAndroidChart 라이브러리의 [com.github.mikephil.charting.charts.LineChart]를 사용한다.
+ * [tabCategory]로 종목을 고르면, 그 종목 기준으로 추이 꺾은선 그래프(전체 기간) + 개인 최고 기록 +
+ * 측정 기록 목록을 함께 보여준다. MPAndroidChart 라이브러리의
+ * [com.github.mikephil.charting.charts.LineChart]를 사용한다.
+ *
+ * 대원(MEMBER) 본인이 "내 기록" 탭으로 들어오면 인자 없이(본인 모드), 관리자가 대원 목록에서
+ * 특정 대원을 탭해 들어오면 "userId"(+ memberName, memberMilitaryId) 인자와 함께(관리자 모드)
+ * 이 화면을 공유해서 쓴다 — 관리자 모드에서는 기록별 삭제 아이콘과 닫기 버튼이 추가로 보이고,
+ * "이 종목 삭제"는 숨긴다(서버에 대원별 종목 삭제 API가 없음).
  *
  * [MVVM 변경] 이 클래스는 이제 "화면을 그리는 View" 역할만 한다. 서버 통신과 조회 결과 보관은
  * [MyRecordViewModel]이 담당하고, 여기서는 그 데이터를 종목별로 걸러 요약 텍스트/목록/차트로
@@ -41,9 +47,20 @@ class MyRecordFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: MyRecordViewModel by viewModels()
-    private val adapter = RecordAdapter(onPhotoClick = { record ->
-        startActivity(PhotoViewActivity.newIntentForRecord(requireContext(), record.id))
-    })
+
+    // 관리자가 특정 대원의 기록을 보는 경우에만 넘어오는 인자. null이면 본인 모드.
+    private val targetUserId: Long? by lazy {
+        arguments?.getLong("userId", -1L)?.takeIf { it != -1L }
+    }
+
+    // targetUserId가 Fragment 생성자 시점(Nav가 arguments를 넣어주기 전)에 평가되지 않도록
+    // adapter도 by lazy로 선언해, 첫 접근(onViewCreated) 시점에야 둘 다 평가되게 한다.
+    private val adapter by lazy {
+        RecordAdapter(
+            onPhotoClick = { record -> startActivity(PhotoViewActivity.newIntentForRecord(requireContext(), record.id)) },
+            onDeleteClick = { record: RecordDto -> showDeleteRecordDialog(record) }.takeIf { targetUserId != null }
+        )
+    }
 
     // 종목 탭 순서 == 서버 categoryId(1: 3km 달리기, 2: 팔굽혀펴기, 3: 윗몸일으키기)와 그대로 대응한다.
     // RecordDto에는 categoryId가 없고 categoryName만 내려오므로, 기록 목록 필터링은 이 이름으로 한다.
@@ -61,6 +78,8 @@ class MyRecordFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel.setTargetUserId(targetUserId)
 
         binding.rvRecords.layoutManager = LinearLayoutManager(requireContext())
         binding.rvRecords.adapter = adapter
@@ -85,6 +104,24 @@ class MyRecordFragment : Fragment() {
             }
         }
 
+        val adminUserId = targetUserId
+        if (adminUserId != null) {
+            // 관리자 모드 — 대원 목록에서 넘겨받은 이름/군번을 그대로 정보줄에 표시한다(별도 조회 불필요).
+            val memberName = arguments?.getString("memberName").orEmpty()
+            val memberMilitaryId = arguments?.getString("memberMilitaryId").orEmpty()
+            binding.tvMyInfo.text = "$memberName ($memberMilitaryId)"
+            binding.ivCloseRecordList.visibility = View.VISIBLE
+            binding.ivCloseRecordList.setOnClickListener { findNavController().popBackStack() }
+        } else {
+            // 본인 모드 — "계급 이름 (군번)" 형태로 표시한다 (계급이 없으면 이름만).
+            viewModel.myInfo.observe(viewLifecycleOwner) { info ->
+                if (info != null) {
+                    binding.tvMyInfo.text = "${info.rank ?: ""} ${info.name} (${info.militaryId})".trim()
+                }
+            }
+            viewModel.loadMyInfo()
+        }
+
         viewModel.loadRecords()
         updateForSelectedCategory()   // 탭 0번(3km 달리기) 기준으로 최초 추이 조회까지 트리거
 
@@ -95,20 +132,34 @@ class MyRecordFragment : Fragment() {
     /** 현재 선택된 종목 탭의 기록만 삭제하기 전, 되돌릴 수 없는 작업이므로 확인 다이얼로그를 띄운다. */
     private fun showDeleteCategoryDialog() {
         val category = categories.getOrNull(binding.tabCategory.selectedTabPosition) ?: categories[0]
+        val message = if (targetUserId != null) "이 대원의 '${category.categoryName}' 기록을 전부 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+            else "'${category.categoryName}' 기록을 전부 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
         AlertDialog.Builder(requireContext())
             .setTitle("종목 기록 삭제")
-            .setMessage("'${category.categoryName}' 기록을 전부 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")
-            .setPositiveButton("삭제") { _, _ -> viewModel.deleteMyRecordsByCategory(category.id) }
+            .setMessage(message)
+            .setPositiveButton("삭제") { _, _ -> viewModel.deleteRecordsByCategory(category.id) }
             .setNegativeButton("취소", null)
             .show()
     }
 
-    /** 종목 구분 없이 내 기록 전부를 삭제하기 전, 되돌릴 수 없는 작업이므로 확인 다이얼로그를 띄운다. */
+    /** 전체 기록을 삭제하기 전, 되돌릴 수 없는 작업이므로 확인 다이얼로그를 띄운다. */
     private fun showDeleteAllDialog() {
+        val message = if (targetUserId != null) "이 대원의 모든 측정 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+            else "내 모든 측정 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
         AlertDialog.Builder(requireContext())
             .setTitle("전체 기록 삭제")
-            .setMessage("내 모든 측정 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")
-            .setPositiveButton("전체 삭제") { _, _ -> viewModel.deleteAllMyRecords() }
+            .setMessage(message)
+            .setPositiveButton("전체 삭제") { _, _ -> viewModel.deleteAllRecords() }
+            .setNegativeButton("취소", null)
+            .show()
+    }
+
+    /** 기록 한 건을 삭제하기 전, 실수로 지우는 것을 막기 위해 확인 다이얼로그를 띄운다 (관리자 모드 전용). */
+    private fun showDeleteRecordDialog(record: RecordDto) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("기록 삭제")
+            .setMessage("${record.categoryName} ${record.measuredAt ?: ""} 기록을 삭제하시겠습니까?")
+            .setPositiveButton("삭제") { _, _ -> viewModel.deleteRecord(record.id) }
             .setNegativeButton("취소", null)
             .show()
     }
@@ -187,13 +238,22 @@ class MyRecordFragment : Fragment() {
                 valueFormatter = IndexAxisValueFormatter(points.map { it.measuredAt.takeLast(5) })
             }
 
-            // y축(좌/우) 눈금 라벨에도 단위를 붙인다 (예: "350초", "65회").
+            // y축(좌/우) 눈금 라벨은 단위를 붙이고 항상 정수로 표시한다 (예: "350초", "65회").
+            // MPAndroidChart가 자동 계산한 눈금 간격은 소수(예: 62.5)일 수 있어, formatValue와 달리
+            // 조건 없이 Math.round로 반올림한다.
             val yAxisFormatter = object : ValueFormatter() {
                 override fun getFormattedValue(value: Float): String =
-                    "${RecordAdapter.formatValue(value.toDouble())}$unit"
+                    "${Math.round(value)}$unit"
             }
+            // 데이터가 1건뿐이면 축 범위가 아주 좁아져 눈금끼리 1 미만 간격으로 촘촘히 잡히는데,
+            // 그러면 Math.round 후 같은 정수가 중복 표시된다(예: "45,45,46,46,47,47"). 눈금 간격이
+            // 최소 1 이상이 되도록 강제해 중복을 막는다.
             axisLeft.valueFormatter = yAxisFormatter
+            axisLeft.granularity = 1f
+            axisLeft.isGranularityEnabled = true
             axisRight.valueFormatter = yAxisFormatter
+            axisRight.granularity = 1f
+            axisRight.isGranularityEnabled = true
 
             animateX(500)
             invalidate()   // 데이터 변경 후 차트를 강제로 다시 그림

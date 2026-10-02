@@ -7,6 +7,37 @@
     android:orientation="vertical"
     android:background="@color/background_screen">
 
+    <!-- 정보줄 — 본인 모드는 "계급 이름 (군번)"만, 관리자가 대원을 보는 모드는 닫기 버튼도 함께 보인다 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/white">
+
+        <TextView
+            android:id="@+id/tvMyInfo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="12dp"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"/>
+
+        <!-- 관리자가 대원 기록을 볼 때만 보이는 닫기 버튼 — 눌러서 대원 목록으로 돌아간다 -->
+        <ImageView
+            android:id="@+id/ivCloseRecordList"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginEnd="12dp"
+            android:padding="2dp"
+            android:visibility="gone"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:contentDescription="닫기"/>
+
+    </LinearLayout>
+
     <!-- 종목 선택 탭 — 전체 삭제 버튼과 섞이지 않도록 이 줄에는 탭만 두고 꽉 채운다 -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabCategory"

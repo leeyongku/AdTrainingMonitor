@@ -16,11 +16,11 @@ import com.training.monitor.data.model.RecordDto
 import com.training.monitor.databinding.ItemRecordBinding
 
 /**
- * [RecordDto] 목록을 RecyclerView에 표시하는 어댑터. [MyRecordFragment]와 관리자용
- * [RecordListViewFragment]가 공유해서 쓴다. [onPhotoClick]은 사진이 있는 항목의 카메라
- * 아이콘을 탭했을 때 호출되며, 실제 화면 전환(PhotoViewActivity 실행)은 호출부가 담당한다.
- * [onDeleteClick]은 관리자 화면([RecordListViewFragment])에서만 넘겨준다 — null이면(기본값,
- * [MyRecordFragment]가 쓰는 경우) 삭제 아이콘 자체를 숨겨 대원 본인은 삭제할 수 없게 한다.
+ * [RecordDto] 목록을 RecyclerView에 표시하는 어댑터. [MyRecordFragment]가 본인 모드/관리자 모드
+ * 공용으로 쓴다. [onPhotoClick]은 사진이 있는 항목의 카메라 아이콘을 탭했을 때 호출되며, 실제
+ * 화면 전환(PhotoViewActivity 실행)은 호출부가 담당한다.
+ * [onDeleteClick]은 관리자 모드에서만 넘겨준다 — null이면(기본값, 본인 모드) 삭제 아이콘 자체를
+ * 숨겨 대원 본인은 삭제할 수 없게 한다.
  */
 class RecordAdapter(
     private val onPhotoClick: (RecordDto) -> Unit = {},

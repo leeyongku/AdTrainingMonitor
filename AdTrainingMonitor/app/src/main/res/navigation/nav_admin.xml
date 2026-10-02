@@ -11,8 +11,8 @@
         android:label="대원 관리">
 
         <action
-            android:id="@+id/action_memberListFragment_to_recordListViewFragment"
-            app:destination="@id/recordListViewFragment"/>
+            android:id="@+id/action_memberListFragment_to_myRecordFragment"
+            app:destination="@id/myRecordFragment"/>
     </fragment>
 
     <fragment
@@ -25,9 +25,11 @@
         android:name="com.training.monitor.ui.stats.StatsFragment"
         android:label="통계"/>
 
+    <!-- 관리자가 특정 대원의 기록을 볼 때는 "나의 훈련정보"(MyRecordFragment)를 그대로
+         재사용한다 — userId 인자가 있으면 그 대원 기준, 없으면(nav_member.xml 쪽) 본인 기준. -->
     <fragment
-        android:id="@+id/recordListViewFragment"
-        android:name="com.training.monitor.ui.record.RecordListViewFragment"
+        android:id="@+id/myRecordFragment"
+        android:name="com.training.monitor.ui.record.MyRecordFragment"
         android:label="대원 기록"/>
 
 </navigation>
