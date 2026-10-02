@@ -134,4 +134,21 @@ public class AuthController(AppDbContext db, JwtService jwtService) : Controller
         await db.SaveChangesAsync();
         return NoContent();
     }
+
+    public record MyInfoResponse(string Name, string MilitaryId, string? Rank);
+
+    /// <summary>
+    /// 로그인한 본인의 이름/군번/계급을 조회합니다. 역할(ADMIN/MEMBER) 구분 없이 호출할 수 있습니다.
+    /// </summary>
+    /// <returns>대상이 없으면 404, 성공 시 이름/군번/계급</returns>
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<ActionResult<MyInfoResponse>> GetMe()
+    {
+        var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var user = await db.Users.FindAsync(userId);
+        if (user is null) return NotFound();
+
+        return Ok(new MyInfoResponse(user.Name, user.MilitaryId, user.Rank));
+    }
 }
