@@ -115,11 +115,11 @@ class MemberListFragment : Fragment() {
         // 행 전체를 탭하면 그 대원의 기록 보기 화면으로 이동한다.
         adapter.onItemClick = { member ->
             findNavController().navigate(
-                R.id.action_memberListFragment_to_recordListViewFragment,
+                R.id.action_memberListFragment_to_myRecordFragment,
                 bundleOf(
                     "userId" to member.id,
                     "memberName" to "${member.rank ?: ""} ${member.name}".trim(),
-                    "memberPhotoBase64" to member.photoBase64
+                    "memberMilitaryId" to member.militaryId
                 )
             )
         }
