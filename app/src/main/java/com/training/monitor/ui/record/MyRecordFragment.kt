@@ -77,6 +77,12 @@ class MyRecordFragment : Fragment() {
         // (최초 로딩 시) 현재 선택된 탭 기준으로 다시 걸러 그린다.
         viewModel.records.observe(viewLifecycleOwner) { updateForSelectedCategory() }
         viewModel.trendPoints.observe(viewLifecycleOwner) { points -> drawTrendChart(points) }
+        // 상단 정보줄 — "계급 이름 (군번)" 형태로 표시한다 (계급이 없으면 이름만).
+        viewModel.myInfo.observe(viewLifecycleOwner) { info ->
+            if (info != null) {
+                binding.tvMyInfo.text = "${info.rank ?: ""} ${info.name} (${info.militaryId})".trim()
+            }
+        }
 
         viewModel.toastMessage.observe(viewLifecycleOwner) { message ->
             if (message != null) {
@@ -85,6 +91,7 @@ class MyRecordFragment : Fragment() {
             }
         }
 
+        viewModel.loadMyInfo()
         viewModel.loadRecords()
         updateForSelectedCategory()   // 탭 0번(3km 달리기) 기준으로 최초 추이 조회까지 트리거
 

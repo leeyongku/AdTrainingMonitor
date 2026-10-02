@@ -43,6 +43,10 @@ interface ApiService {
     @PATCH("api/auth/password")
     suspend fun changePassword(@Body req: ChangePasswordRequest): Response<Unit>
 
+    /** 로그인한 본인의 이름/군번/계급을 조회한다. 역할 구분 없이 호출할 수 있다. */
+    @GET("api/auth/me")
+    suspend fun getMyInfo(): Response<MyInfoDto>
+
     // =============================================
     // 대원 관리 (관리자)
     // =============================================

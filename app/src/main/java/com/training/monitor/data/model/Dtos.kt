@@ -98,6 +98,16 @@ data class ChangePasswordRequest(
     @SerializedName("new_password") val newPassword: String
 )
 
+/**
+ * 로그인한 본인의 이름/군번/계급 조회(GET /api/auth/me) 응답. 역할(ADMIN/MEMBER) 구분 없이
+ * 호출할 수 있다. MyRecordFragment 상단에 "누구의 기록인지" 표시하는 데 사용한다.
+ */
+data class MyInfoDto(
+    val name: String,
+    @SerializedName("military_id") val militaryId: String,
+    val rank: String?
+)
+
 // =============================================
 // 대원 — MemberListFragment, MemberAdapter, RecordInputFragment(대원 선택)에서 사용
 // =============================================

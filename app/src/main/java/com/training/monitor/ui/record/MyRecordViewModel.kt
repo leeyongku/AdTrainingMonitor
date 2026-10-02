@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.training.monitor.data.api.ApiService
+import com.training.monitor.data.model.MyInfoDto
 import com.training.monitor.data.model.RecordDto
 import com.training.monitor.data.model.TrendPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,6 +39,24 @@ class MyRecordViewModel @Inject constructor(
 
     private val _toastMessage = MutableLiveData<String?>(null)
     val toastMessage: LiveData<String?> = _toastMessage
+
+    // 화면 상단에 "누구의 기록인지" 표시하기 위한 본인 이름/군번/계급.
+    private val _myInfo = MutableLiveData<MyInfoDto?>(null)
+    val myInfo: LiveData<MyInfoDto?> = _myInfo
+
+    /** 로그인한 본인의 이름/군번/계급을 조회해 [myInfo]를 갱신한다. */
+    fun loadMyInfo() {
+        viewModelScope.launch {
+            try {
+                val response = apiService.getMyInfo()
+                if (response.isSuccessful) {
+                    _myInfo.value = response.body()
+                }
+            } catch (e: Exception) {
+                _toastMessage.value = "내 정보 로딩 실패"
+            }
+        }
+    }
 
     /** 본인 기록 전체를 조회해 [records]를 갱신한다. */
     fun loadRecords() {
