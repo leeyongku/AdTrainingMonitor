@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 관리자 - 특정 대원의 전체 기록(사진 포함) 조회 화면 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background_screen"
+    tools:context=".ui.record.RecordListViewFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/white">
+
+        <!-- 대원 얼굴 사진 — 사진이 있을 때만 보인다 (없으면 GONE) -->
+        <ImageView
+            android:id="@+id/ivMemberPhoto"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="16dp"
+            android:scaleType="centerCrop"
+            android:background="@color/background_badge"
+            android:visibility="gone"
+            android:contentDescription="얼굴 사진"/>
+
+        <TextView
+            android:id="@+id/tvMemberName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="16dp"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/brand_primary"/>
+
+        <!-- 이 대원의 전체 측정 기록을 한 번에 삭제 -->
+        <Button
+            android:id="@+id/btnDeleteAllRecords"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="전체 삭제"
+            android:textColor="@color/color_danger"
+            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+        <!-- 뒤로가기 제스처/버튼 대신, 눌러서 바로 대원 목록으로 돌아가는 닫기 버튼 -->
+        <ImageView
+            android:id="@+id/ivCloseRecordList"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginEnd="16dp"
+            android:padding="2dp"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:contentDescription="닫기"/>
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvRecords"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"
+        android:clipToPadding="false"/>
+
+</LinearLayout>

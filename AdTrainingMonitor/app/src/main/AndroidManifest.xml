@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?><!-- 앱 권한 및 Activity 등록 -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 인터넷 권한 (서버 통신에 필수) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- 로컬 네트워크(사설 IP 대역) 접속 권한. 개발용 서버 주소(10.0.2.2 등)에 접속하려면 필요 -->
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
+
+    <!-- 촬영한 사진을 갤러리에 저장하기 위한 권한. API 29+는 Scoped Storage로 권한 없이
+         MediaStore에 쓸 수 있어 API 28 이하에서만 실제로 요청/사용된다. -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <!-- Android 11(API 30)+ 패키지 가시성 정책 대응: 카메라 앱이 있는지 확인하기 위해 필요 -->
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+    </queries>
+
+    <application
+        android:name=".TrainingMonitorApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="훈련 모니터링"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
+        android:usesCleartextTraffic="true">
+
+        <!--
+            usesCleartextTraffic="true" : 개발 중 http 허용
+            운영 배포 시에는 서버에 HTTPS 적용 후 이 옵션 제거
+        -->
+
+
+        <!-- 로그인 화면 (앱 시작점) -->
+        <activity
+            android:name=".ui.login.LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 메인 화면 -->
+        <activity
+            android:name=".ui.main.MainActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- 비밀번호 변경 화면 (관리자가 부여한 임시 비밀번호를 강제로 교체) -->
+        <activity
+            android:name=".ui.password.ChangePasswordActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- 촬영한 사진을 전체화면으로 보여주는 화면 -->
+        <activity
+            android:name=".ui.photo.PhotoViewActivity"
+            android:exported="false" />
+
+        <!-- 카메라 앱에게 임시 촬영 파일 경로를 공유하기 위한 FileProvider -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+
+</manifest>

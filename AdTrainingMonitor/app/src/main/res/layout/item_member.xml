@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- RecyclerView 대원 항목 -->
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="14dp"
+        android:gravity="center_vertical">
+
+        <!-- 프로필 아이콘 — 얼굴 사진이 있으면 ivProfilePhoto, 없으면 기존 이모지(tvProfileEmoji)를 보여준다 -->
+        <FrameLayout
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@color/background_badge"
+            android:layout_marginEnd="12dp">
+
+            <TextView
+                android:id="@+id/tvProfileEmoji"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="👤"
+                android:textSize="22sp"/>
+
+            <ImageView
+                android:id="@+id/ivProfilePhoto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                android:contentDescription="얼굴 사진"/>
+
+        </FrameLayout>
+
+        <!-- 이름 + 군번 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"/>
+
+            <TextView
+                android:id="@+id/tvMilitaryId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/text_tertiary"/>
+        </LinearLayout>
+
+        <!-- 부대 -->
+        <TextView
+            android:id="@+id/tvUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/brand_primary"
+            android:background="@color/background_badge"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"/>
+
+        <!-- 대원 정보 수정 -->
+        <ImageView
+            android:id="@+id/ivEditMember"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="8dp"
+            android:padding="2dp"
+            android:src="@android:drawable/ic_menu_edit"
+            android:contentDescription="대원 정보 수정"/>
+
+        <!-- 비밀번호 변경 -->
+        <ImageView
+            android:id="@+id/ivResetPassword"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="8dp"
+            android:padding="2dp"
+            android:src="@android:drawable/ic_lock_lock"
+            android:contentDescription="비밀번호 변경"/>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

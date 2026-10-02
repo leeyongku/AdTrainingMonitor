@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 대원 네비게이션 그래프 -->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_member"
+    app:startDestination="@id/myRecordFragment">
+
+    <fragment
+        android:id="@+id/myRecordFragment"
+        android:name="com.training.monitor.ui.record.MyRecordFragment"
+        android:label="내 기록"/>
+
+</navigation>

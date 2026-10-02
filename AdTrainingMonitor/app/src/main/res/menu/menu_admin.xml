@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 관리자 하단 네비게이션 메뉴 -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/memberListFragment"
+        android:icon="@android:drawable/ic_menu_manage"
+        android:title="대원 관리"/>
+
+    <item
+        android:id="@+id/recordInputFragment"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="기록 입력"/>
+
+    <item
+        android:id="@+id/statsFragment"
+        android:icon="@android:drawable/ic_menu_compass"
+        android:title="통계" />
+
+</menu>

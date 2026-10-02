@@ -1,0 +1,32 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# 서명 키 - 절대 커밋하지 않음
+/keyStore/
+
+# IDE/도구 캐시 (재생성 가능, 커밋 대상 아님)
+/.idea/
+/.kotlin/
+/.ua/
+/.bkit/
+
+# 빌드 산출물 APK (app/debug, app/release) - 소스가 아니라 빌드 결과물
+/app/debug/
+/app/release/
+
+# 세션 중 생성된 디버그 로그/스크래치 파일 (uiautomator dump 등, 루트에만 적용)
+*.log
+/*.xml

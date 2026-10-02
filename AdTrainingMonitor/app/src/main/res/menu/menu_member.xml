@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 대원 하단 네비게이션 메뉴 -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/myRecordFragment"
+        android:icon="@android:drawable/ic_menu_recent_history"
+        android:title="내 기록"/>
+
+</menu>

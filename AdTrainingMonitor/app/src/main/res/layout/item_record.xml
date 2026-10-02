@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- RecyclerView 기록 항목 -->
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <!-- 등급 뱃지 -->
+        <TextView
+            android:id="@+id/tvGrade"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:background="@drawable/grade_badge_bg"
+            android:layout_marginEnd="12dp"/>
+
+        <!-- 종목 + 날짜 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"/>
+
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/text_tertiary"/>
+        </LinearLayout>
+
+        <!-- 기록값 -->
+        <TextView
+            android:id="@+id/tvValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/brand_primary"/>
+
+        <!-- 사진 보기 아이콘 (사진이 있는 기록만 표시) -->
+        <ImageView
+            android:id="@+id/ivPhotoIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="12dp"
+            android:src="@android:drawable/ic_menu_camera"
+            android:visibility="gone"
+            android:contentDescription="사진 보기"/>
+
+        <!-- 기록 삭제 아이콘 (관리자가 대원별 기록 화면에서 볼 때만 표시 — RecordAdapter.onDeleteClick이 있을 때만 보임) -->
+        <ImageView
+            android:id="@+id/ivDeleteRecord"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="12dp"
+            android:src="@android:drawable/ic_menu_delete"
+            android:visibility="gone"
+            android:contentDescription="기록 삭제"/>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
