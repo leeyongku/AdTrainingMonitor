@@ -162,14 +162,16 @@ public class MembersController(AppDbContext db) : ControllerBase
 
     /// <summary>
     /// 대원을 비활성화합니다 (제대/전역). 실제로 삭제하지 않고 IsActive만 false로 바꿉니다.
+    /// 관리자(ADMIN) 계정은 이 기능으로 비활성화할 수 없습니다.
     /// </summary>
     /// <param name="id">비활성화할 대원 id</param>
-    /// <returns>대상이 없으면 404, 성공 시 204</returns>
+    /// <returns>대상이 없으면 404, 관리자 계정이면 400, 성공 시 204</returns>
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeactivateMember(long id)
     {
         var user = await db.Users.FindAsync(id);
         if (user is null) return NotFound();
+        if (user.Role == TrainingMonitor.Models.Entities.UserRole.ADMIN) return BadRequest("관리자 계정은 이 기능으로 삭제할 수 없습니다.");
 
         user.IsActive = false;
         user.UpdatedAt = DateTime.UtcNow;
@@ -180,14 +182,16 @@ public class MembersController(AppDbContext db) : ControllerBase
     /// <summary>
     /// 대원을 DB에서 완전히 삭제합니다 (복구 불가능). 외래키 제약(records.user_id) 때문에
     /// 먼저 그 대원의 측정 기록을 모두 지운 뒤 대원 자신을 삭제합니다.
+    /// 관리자(ADMIN) 계정은 이 기능으로 삭제할 수 없습니다.
     /// </summary>
     /// <param name="id">완전 삭제할 대원 id</param>
-    /// <returns>대상이 없으면 404, 성공 시 204</returns>
+    /// <returns>대상이 없으면 404, 관리자 계정이면 400, 성공 시 204</returns>
     [HttpDelete("{id}/permanent")]
     public async Task<IActionResult> DeleteMemberPermanently(long id)
     {
         var user = await db.Users.FindAsync(id);
         if (user is null) return NotFound();
+        if (user.Role == TrainingMonitor.Models.Entities.UserRole.ADMIN) return BadRequest("관리자 계정은 이 기능으로 삭제할 수 없습니다.");
 
         var records = await db.Records.Where(r => r.UserId == id).ToListAsync();
         db.Records.RemoveRange(records);
