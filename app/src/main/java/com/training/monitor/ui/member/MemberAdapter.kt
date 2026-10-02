@@ -60,6 +60,9 @@ class MemberAdapter : ListAdapter<MemberDto, MemberAdapter.ViewHolder>(DiffCallb
                 binding.tvProfileEmoji.visibility = View.VISIBLE
             }
 
+            // 관리자(ADMIN) 계정은 이 화면에서 삭제(숨기기/완전 삭제)할 수 없다 — 대원(MEMBER) 전용 기능이다.
+            binding.ivDeleteMember.visibility = if (member.role == "ADMIN") View.GONE else View.VISIBLE
+
             binding.root.setOnClickListener { onItemClick?.invoke(member) }
             binding.ivResetPassword.setOnClickListener { onResetPasswordClick?.invoke(member) }
             binding.ivEditMember.setOnClickListener { onEditClick?.invoke(member) }
