@@ -48,6 +48,17 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
+            <!-- 부대 -->
+            <TextView
+                android:id="@+id/tvUnit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/brand_primary"
+                android:background="@color/background_badge"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"/>
+
             <TextView
                 android:id="@+id/tvName"
                 android:layout_width="wrap_content"
@@ -64,25 +75,17 @@
                 android:textColor="@color/text_tertiary"/>
         </LinearLayout>
 
-        <!-- 부대 -->
-        <TextView
-            android:id="@+id/tvUnit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:textColor="@color/brand_primary"
-            android:background="@color/background_badge"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"/>
+
 
         <!-- 대원 정보 수정 -->
         <ImageView
             android:id="@+id/ivEditMember"
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="4dp"
             android:padding="2dp"
-            android:src="@android:drawable/ic_menu_edit"
+            android:src="@drawable/icons8_writer"
+            android:background="?attr/selectableItemBackground"
             android:contentDescription="대원 정보 수정"/>
 
         <!-- 비밀번호 변경 -->
@@ -90,7 +93,7 @@
             android:id="@+id/ivResetPassword"
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="4dp"
             android:padding="2dp"
             android:src="@android:drawable/ic_lock_lock"
             android:contentDescription="비밀번호 변경"/>
@@ -100,9 +103,10 @@
             android:id="@+id/ivDeleteMember"
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="4dp"
             android:padding="2dp"
-            android:src="@android:drawable/ic_menu_delete"
+            android:src="@drawable/icons8_trash"
+            app:tint="@color/color_danger"
             android:contentDescription="대원 삭제"/>
 
     </LinearLayout>

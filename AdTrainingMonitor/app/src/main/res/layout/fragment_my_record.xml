@@ -25,6 +25,15 @@
             android:textStyle="bold"
             android:textColor="@color/text_primary"/>
 
+        <ImageView
+            android:id="@+id/btnDeleteMyAllRecords"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:padding="2dp"
+            android:layout_marginEnd="10dp"
+            android:src="@android:drawable/ic_menu_delete"
+            android:contentDescription="전체 삭제"/>
+
         <!-- 관리자가 대원 기록을 볼 때만 보이는 닫기 버튼 — 눌러서 대원 목록으로 돌아간다 -->
         <ImageView
             android:id="@+id/ivCloseRecordList"
@@ -37,6 +46,24 @@
             android:contentDescription="닫기"/>
 
     </LinearLayout>
+
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:gravity="right"-->
+<!--        android:background="@color/white">-->
+<!--    &lt;!&ndash; 종목 구분 없이 내 기록 전부 삭제 &ndash;&gt;-->
+<!--    <Button-->
+<!--        android:id="@+id/btnDeleteMyAllRecords"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:textColor="@color/color_danger"-->
+<!--        android:layout_gravity="end"-->
+<!--        android:layout_marginRight="5pt"-->
+<!--        style="@style/Widget.MaterialComponents.Button.OutlinedButton"-->
+<!--        android:text="전체 삭제" />-->
+<!--    </LinearLayout>-->
 
     <!-- 종목 선택 탭 — 전체 삭제 버튼과 섞이지 않도록 이 줄에는 탭만 두고 꽉 채운다 -->
     <com.google.android.material.tabs.TabLayout
@@ -78,34 +105,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="120dp"/>
 
-            <!-- 삭제 버튼 2개는 여기, 그래프 바로 아래에 한 쌍으로 묶어 둔다 (상단 탭과는 분리) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal">
+            <!-- 현재 선택된 종목 탭의 기록만 삭제 -->
+            <ImageView
+                android:id="@+id/btnDeleteMyCategoryRecords"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="10dp"
+                android:src="@android:drawable/ic_menu_delete"
+                android:contentDescription="이 종목 삭제"/>
 
-                <!-- 현재 선택된 종목 탭의 기록만 삭제 -->
-                <Button
-                    android:id="@+id/btnDeleteMyCategoryRecords"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textColor="@color/color_danger"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:text="이 종목 삭제" />
 
-                <!-- 종목 구분 없이 내 기록 전부 삭제 -->
-                <Button
-                    android:id="@+id/btnDeleteMyAllRecords"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textColor="@color/color_danger"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:text="전체 삭제" />
-
-            </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
