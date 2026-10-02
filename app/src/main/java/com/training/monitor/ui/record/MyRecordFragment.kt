@@ -187,10 +187,12 @@ class MyRecordFragment : Fragment() {
                 valueFormatter = IndexAxisValueFormatter(points.map { it.measuredAt.takeLast(5) })
             }
 
-            // y축(좌/우) 눈금 라벨에도 단위를 붙인다 (예: "350초", "65회").
+            // y축(좌/우) 눈금 라벨은 단위를 붙이고 항상 정수로 표시한다 (예: "350초", "65회").
+            // MPAndroidChart가 자동 계산한 눈금 간격은 소수(예: 62.5)일 수 있어, formatValue와 달리
+            // 조건 없이 Math.round로 반올림한다.
             val yAxisFormatter = object : ValueFormatter() {
                 override fun getFormattedValue(value: Float): String =
-                    "${RecordAdapter.formatValue(value.toDouble())}$unit"
+                    "${Math.round(value)}$unit"
             }
             axisLeft.valueFormatter = yAxisFormatter
             axisRight.valueFormatter = yAxisFormatter
