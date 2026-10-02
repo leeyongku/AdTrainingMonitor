@@ -34,6 +34,9 @@ class MemberAdapter : ListAdapter<MemberDto, MemberAdapter.ViewHolder>(DiffCallb
     /** 연필 모양 "정보 수정" 아이콘 클릭 콜백. 호출부가 이름/계급/부대/사진 수정 다이얼로그를 띄우는 데 사용. */
     var onEditClick: ((MemberDto) -> Unit)? = null
 
+    /** 휴지통 모양 "삭제" 아이콘 클릭 콜백. 호출부가 숨기기/완전 삭제 선택 다이얼로그를 띄우는 데 사용. */
+    var onDeleteClick: ((MemberDto) -> Unit)? = null
+
     /** 대원 목록의 행(row) 하나에 대응하는 뷰 홀더. ViewBinding으로 뷰를 참조한다. */
     inner class ViewHolder(private val binding: ItemMemberBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -60,6 +63,7 @@ class MemberAdapter : ListAdapter<MemberDto, MemberAdapter.ViewHolder>(DiffCallb
             binding.root.setOnClickListener { onItemClick?.invoke(member) }
             binding.ivResetPassword.setOnClickListener { onResetPasswordClick?.invoke(member) }
             binding.ivEditMember.setOnClickListener { onEditClick?.invoke(member) }
+            binding.ivDeleteMember.setOnClickListener { onDeleteClick?.invoke(member) }
         }
     }
 

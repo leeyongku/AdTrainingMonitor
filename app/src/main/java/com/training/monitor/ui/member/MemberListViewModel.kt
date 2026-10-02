@@ -199,6 +199,40 @@ class MemberListViewModel @Inject constructor(
         }
     }
 
+    /** 서버에 대원 비활성화(숨기기)를 요청하고, 성공 시 목록을 새로고침한다. 실제 삭제가 아니다. */
+    fun deactivateMember(member: MemberDto) {
+        viewModelScope.launch {
+            try {
+                val response = apiService.deactivateMember(member.id)
+                if (response.isSuccessful) {
+                    _toastMessage.value = "${member.name} 대원을 숨겼습니다."
+                    loadMembers()
+                } else {
+                    _toastMessage.value = "대원 숨기기 실패"
+                }
+            } catch (e: Exception) {
+                _toastMessage.value = "서버 연결 실패: ${e.message}"
+            }
+        }
+    }
+
+    /** 서버에 대원 완전 삭제(복구 불가, 측정 기록도 함께 삭제됨)를 요청하고, 성공 시 목록을 새로고침한다. */
+    fun deletePermanently(member: MemberDto) {
+        viewModelScope.launch {
+            try {
+                val response = apiService.deleteMemberPermanently(member.id)
+                if (response.isSuccessful) {
+                    _toastMessage.value = "${member.name} 대원을 완전히 삭제했습니다."
+                    loadMembers()
+                } else {
+                    _toastMessage.value = "대원 완전 삭제 실패"
+                }
+            } catch (e: Exception) {
+                _toastMessage.value = "서버 연결 실패: ${e.message}"
+            }
+        }
+    }
+
     /** Fragment가 메시지를 Toast로 보여준 뒤 호출한다 — 값을 비워야 화면 회전 시 같은 메시지가 다시 뜨지 않는다. */
     fun onToastMessageShown() {
         _toastMessage.value = null
