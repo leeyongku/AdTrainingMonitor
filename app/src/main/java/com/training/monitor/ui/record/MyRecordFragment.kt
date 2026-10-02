@@ -194,8 +194,15 @@ class MyRecordFragment : Fragment() {
                 override fun getFormattedValue(value: Float): String =
                     "${Math.round(value)}$unit"
             }
+            // 데이터가 1건뿐이면 축 범위가 아주 좁아져 눈금끼리 1 미만 간격으로 촘촘히 잡히는데,
+            // 그러면 Math.round 후 같은 정수가 중복 표시된다(예: "45,45,46,46,47,47"). 눈금 간격이
+            // 최소 1 이상이 되도록 강제해 중복을 막는다.
             axisLeft.valueFormatter = yAxisFormatter
+            axisLeft.granularity = 1f
+            axisLeft.isGranularityEnabled = true
             axisRight.valueFormatter = yAxisFormatter
+            axisRight.granularity = 1f
+            axisRight.isGranularityEnabled = true
 
             animateX(500)
             invalidate()   // 데이터 변경 후 차트를 강제로 다시 그림
