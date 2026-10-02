@@ -172,6 +172,22 @@ public class RecordsController(AppDbContext db) : ControllerBase
     }
 
     /// <summary>
+    /// 특정 대원의 특정 종목 측정 기록을 전부 삭제합니다 (관리자 전용).
+    /// </summary>
+    /// <param name="userId">기록을 삭제할 대원 id</param>
+    /// <param name="categoryId">삭제할 종목 id</param>
+    /// <returns>삭제된 기록 개수</returns>
+    [HttpDelete("user/{userId}/category/{categoryId}")]
+    [Authorize(Roles = "ADMIN")]
+    public async Task<IActionResult> DeleteUserRecordsByCategory(long userId, long categoryId)
+    {
+        var records = await db.Records.Where(r => r.UserId == userId && r.CategoryId == categoryId).ToListAsync();
+        db.Records.RemoveRange(records);
+        await db.SaveChangesAsync();
+        return Ok(new { deletedCount = records.Count });
+    }
+
+    /// <summary>
     /// 대원·종목 기준 등급 판정표를 조회합니다 (안드로이드 기록 입력 화면의 등급 미리보기가 사용).
     /// CalculateGrade와 동일하게 대원의 계급 -> 계급군을 반영한 기준표를 카탈로그 순서 그대로 내려줍니다.
     /// </summary>
