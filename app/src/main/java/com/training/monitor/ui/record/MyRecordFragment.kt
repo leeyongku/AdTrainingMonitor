@@ -112,8 +112,6 @@ class MyRecordFragment : Fragment() {
             binding.tvMyInfo.text = "$memberName ($memberMilitaryId)"
             binding.ivCloseRecordList.visibility = View.VISIBLE
             binding.ivCloseRecordList.setOnClickListener { findNavController().popBackStack() }
-            // 서버에 "대원별 종목 삭제" API가 없으므로 숨기고, "전체 삭제"만 남긴다.
-            binding.btnDeleteMyCategoryRecords.visibility = View.GONE
         } else {
             // 본인 모드 — "계급 이름 (군번)" 형태로 표시한다 (계급이 없으면 이름만).
             viewModel.myInfo.observe(viewLifecycleOwner) { info ->
@@ -122,22 +120,24 @@ class MyRecordFragment : Fragment() {
                 }
             }
             viewModel.loadMyInfo()
-            binding.btnDeleteMyCategoryRecords.setOnClickListener { showDeleteCategoryDialog() }
         }
 
         viewModel.loadRecords()
         updateForSelectedCategory()   // 탭 0번(3km 달리기) 기준으로 최초 추이 조회까지 트리거
 
+        binding.btnDeleteMyCategoryRecords.setOnClickListener { showDeleteCategoryDialog() }
         binding.btnDeleteMyAllRecords.setOnClickListener { showDeleteAllDialog() }
     }
 
-    /** 현재 선택된 종목 탭의 기록만 삭제하기 전, 되돌릴 수 없는 작업이므로 확인 다이얼로그를 띄운다 (본인 모드 전용). */
+    /** 현재 선택된 종목 탭의 기록만 삭제하기 전, 되돌릴 수 없는 작업이므로 확인 다이얼로그를 띄운다. */
     private fun showDeleteCategoryDialog() {
         val category = categories.getOrNull(binding.tabCategory.selectedTabPosition) ?: categories[0]
+        val message = if (targetUserId != null) "이 대원의 '${category.categoryName}' 기록을 전부 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+            else "'${category.categoryName}' 기록을 전부 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
         AlertDialog.Builder(requireContext())
             .setTitle("종목 기록 삭제")
-            .setMessage("'${category.categoryName}' 기록을 전부 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")
-            .setPositiveButton("삭제") { _, _ -> viewModel.deleteMyRecordsByCategory(category.id) }
+            .setMessage(message)
+            .setPositiveButton("삭제") { _, _ -> viewModel.deleteRecordsByCategory(category.id) }
             .setNegativeButton("취소", null)
             .show()
     }

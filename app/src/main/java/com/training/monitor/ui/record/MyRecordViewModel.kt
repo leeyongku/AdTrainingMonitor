@@ -122,11 +122,16 @@ class MyRecordViewModel @Inject constructor(
         }
     }
 
-    /** 내 측정 기록 중 특정 종목만 전부 삭제하고, 성공 시 목록을 새로고침한다 (본인 모드 전용). */
-    fun deleteMyRecordsByCategory(categoryId: Long) {
+    /**
+     * 특정 종목의 기록만 전부 삭제하고, 성공 시 목록을 새로고침한다. [targetUserId]가 있으면
+     * (관리자 모드) 그 대원의, 없으면(본인 모드) 로그인한 본인의 해당 종목 기록을 지운다.
+     */
+    fun deleteRecordsByCategory(categoryId: Long) {
         viewModelScope.launch {
             try {
-                val response = apiService.deleteMyRecordsByCategory(categoryId)
+                val id = targetUserId
+                val response = if (id != null) apiService.deleteUserRecordsByCategory(id, categoryId)
+                    else apiService.deleteMyRecordsByCategory(categoryId)
                 if (response.isSuccessful) {
                     _toastMessage.value = "선택한 종목의 기록을 삭제했습니다."
                     loadRecords()
