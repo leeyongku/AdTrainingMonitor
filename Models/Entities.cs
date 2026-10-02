@@ -69,6 +69,9 @@ public class User
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? LastLoginAt { get; set; }
+
+    // 얼굴 사진 (선택, JPEG 바이너리 그대로 저장 — 목록 아이콘 표시용으로 작게 압축해서 올라온다)
+    public byte[]? PhotoData { get; set; }
 }
 
 // =============================================

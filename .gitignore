@@ -1,0 +1,12 @@
+# 운영 배포용 설정 파일 - 실제 DB 비밀번호/JWT 시크릿이 들어가므로 git에 올리지 않음
+appsettings.Production.json
+
+# 빌드 산출물 (재생성 가능, 커밋 대상 아님)
+bin/
+obj/
+
+# IDE/도구 캐시
+.vs/
+.vscode/
+.bkit/
+*.user

@@ -7,6 +7,7 @@ namespace TrainingMonitor.Services;
 
 public class SnakeCaseNamingPolicy : JsonNamingPolicy
 {
+    // 대문자 앞에 '_'를 삽입하고 소문자화 (예: MilitaryId -> military_id)
     public override string ConvertName(string name)
     {
         var sb = new StringBuilder();
